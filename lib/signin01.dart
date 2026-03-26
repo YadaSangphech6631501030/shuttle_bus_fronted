@@ -35,9 +35,9 @@ class Signin01 extends StatelessWidget {
 
     const SizedBox(height: 100), 
 
-    // button
+    //  Sign in button
     SizedBox(
-      width: 300,
+      width: 200,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.black,

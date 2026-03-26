@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Signin02 extends StatelessWidget {
   const Signin02({super.key});
@@ -27,14 +28,14 @@ class Signin02 extends StatelessWidget {
                 // bus
                 Center(child: Image.asset('assets/bus.png', height: 120)),
 
-      
+                const SizedBox(height: 40),
+
                 //Username
                 const Text("Username"),
 
                 const SizedBox(height: 20),
 
-
-                 // button
+                // button
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -49,9 +50,12 @@ class Signin02 extends StatelessWidget {
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: "Enter your Username",
+                      prefixIcon: Icon(Icons.account_box),
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -64,9 +68,9 @@ class Signin02 extends StatelessWidget {
 
                 //password label
                 const Text("Password"),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // button
                 Container(
                   decoration: BoxDecoration(
@@ -82,6 +86,7 @@ class Signin02 extends StatelessWidget {
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: "Enter your password",
+                      prefixIcon: Icon(Icons.lock),
                       filled: true,
                       fillColor: Colors.white,
                       contentPadding: const EdgeInsets.symmetric(
@@ -89,16 +94,42 @@ class Signin02 extends StatelessWidget {
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none, 
+                        borderSide: BorderSide.none,
                       ),
                     ),
                   ),
                 ),
 
+                const SizedBox(height: 40),
+
+                // button
+                Center(
+                  child: SizedBox(
+                    width: 200,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        elevation: 5,
+                        shadowColor: Colors.black.withOpacity(0.1),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        print("Login");
+                      },
+                      child: const Text(
+                        "Sign in",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
 
                 const SizedBox(height: 20),
 
-                // 🔹 Sign up
+                // Sign up
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
