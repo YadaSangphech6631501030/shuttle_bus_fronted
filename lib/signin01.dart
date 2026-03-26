@@ -7,7 +7,7 @@ class Signin01 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: const Color(0xffffffff),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -15,7 +15,8 @@ class Signin01 extends StatelessWidget {
   children: [
 
     const SizedBox(height: 20),
-
+    
+    // mfu logo
     Align(
       alignment: Alignment.centerLeft,
       child: Image.asset(
@@ -34,12 +35,14 @@ class Signin01 extends StatelessWidget {
 
     const SizedBox(height: 100), 
 
-    // ปุ่ม
+    // button
     SizedBox(
       width: 300,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.black,
+          elevation: 5,
+          shadowColor: Colors.black.withOpacity(0.1),
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

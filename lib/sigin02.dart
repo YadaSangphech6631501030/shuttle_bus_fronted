@@ -6,107 +6,95 @@ class Signin02 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F5F5),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
+      backgroundColor: const Color(0xffffffff),
       body: SafeArea(
-        child: SingleChildScrollView( 
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 const SizedBox(height: 20),
 
-                // 🔹 logo
+                // mfu logo
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Image.asset(
-                    'assets/mfu_logo.png',
-                    height: 90,
-                  ),
+                  child: Image.asset('assets/mfu_logo.png', height: 90),
                 ),
 
                 const SizedBox(height: 20),
 
-                // 🔹 bus (จัดกลาง)
-                Center(
-                  child: Image.asset(
-                    'assets/bus.png',
-                    height: 120,
-                  ),
-                ),
+                // bus
+                Center(child: Image.asset('assets/bus.png', height: 120)),
 
-                const SizedBox(height: 30),
-
-                // 🔹 Username
+      
+                //Username
                 const Text("Username"),
-                const SizedBox(height: 8),
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: "Enter your email",
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
 
                 const SizedBox(height: 20),
 
-                // 🔹 Password
-                const Text("Password"),
-                const SizedBox(height: 8),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Enter your password",
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+
+                 // button
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // 🔹 Forgot password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text("Forgot Password?"),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // 🔹 Sign in button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Enter your Username",
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
                       ),
                     ),
-                    onPressed: () {},
-                    child: const Text(
-                      "Sign in",
-                      style: TextStyle(color: Colors.white),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                //password label
+                const Text("Password"),
+                
+                const SizedBox(height: 20),
+                
+                // button
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Enter your password",
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none, 
+                      ),
                     ),
                   ),
                 ),
+
 
                 const SizedBox(height: 20),
 
