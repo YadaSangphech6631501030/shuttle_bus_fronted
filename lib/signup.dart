@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shuttle_bus_fronted/homepages.dart';
-import 'signup.dart';
-import 'homepages.dart';
+import 'package:shuttle_bus_fronted/sigin02.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Signin02 extends StatelessWidget {
-  const Signin02({super.key});
+class Signup extends StatelessWidget {
+  const Signup({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +34,7 @@ class Signin02 extends StatelessWidget {
                 //Username
                 const Text("Username"),
 
-                const SizedBox(height: 20),
-
-                // button
+                //  username button
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -69,12 +65,45 @@ class Signin02 extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                //password label
-                const Text("Password"),
+                //email 
+                const Text("Email"),
+
+                // Email button
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Enter your email",
+                      prefixIcon: Icon(Icons.email),
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                ),
 
                 const SizedBox(height: 20),
 
-                // password button
+                //password 
+                const Text("Password"),
+                // confirm password 
+                
+                // button
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -105,7 +134,7 @@ class Signin02 extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                //  Sign in button
+                // button
                 Center(
                   child: SizedBox(
                     width: 200,
@@ -120,15 +149,10 @@ class Signin02 extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Homepages(),
-                          ),
-                        );
+                        print("Sign up");
                       },
                       child: const Text(
-                        "Sign in",
+                        "Sign up",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -137,22 +161,22 @@ class Signin02 extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // Sign up
+               // Sign in
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account? "),
+                    const Text("Already have an account? "),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const Signup(),
+                            builder: (context) => const Signin02(),
                           ),
                         );
                       },
                       child: const Text(
-                        "Sign up",
+                        "Sign in",
                         style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.bold,
