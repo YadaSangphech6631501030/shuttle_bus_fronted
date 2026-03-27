@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shuttle_bus_fronted/account_user.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -13,32 +14,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: const Color(0xffffffff),
 
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Center( 
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
 
-                
+                // ฺBack icons
                 Align(
                   alignment: Alignment.centerLeft,
                   child: IconButton(
                     icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
-                
+                // Profile
                 Stack(
-                  alignment: Alignment.center,
                   children: [
                     Container(
                       width: 140,
@@ -54,6 +52,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ),
                     ),
 
+                    // Edit profile
                     Positioned(
                       bottom: 0,
                       right: 0,
@@ -61,11 +60,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
-                          boxShadow: const [
+                          boxShadow: [
                             BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 5,
-                              color: Colors.black26,
-                            )
+                            ),
                           ],
                         ),
                         child: IconButton(
@@ -73,44 +72,45 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           onPressed: () {},
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
 
                 const SizedBox(height: 30),
 
-                
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Column(
-                    children: [
-                      buildInput("Username", "Time"),
-                      const SizedBox(height: 15),
-                      buildInput("Email", "6631501013@lamduan.mfu.ac.th"),
-                      const SizedBox(height: 15),
-                      buildPasswordInput(),
-                      const SizedBox(height: 15),
-                      buildInput("NewPassword", ""),
-                    ],
-                  ),
-                ),
+                // Input Form
+                buildInputRow("Username", "Time"),
+                buildInputRow("Email", "6631501013@lamduan.mfu.ac.th"),
+                buildInputRow("Password", "Enter password"),
+                buildInputRow("New Password", "Enter new password"),
 
                 const SizedBox(height: 40),
 
                 // Confirm Button
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 60, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                SizedBox(
+                  width: 200,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      elevation: 5,
+                      shadowColor: Colors.black.withValues(alpha: 0.2),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    "Confirm",
-                    style: TextStyle(color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AccountUser(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "Confirm",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
 
@@ -123,64 +123,116 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  // Input
-  Widget buildInput(String label, String hint) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label),
-        const SizedBox(height: 5),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: TextField(
-            textAlign: TextAlign.center, 
-           decoration: const InputDecoration(
-          border: InputBorder.none,
-          ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  
-  Widget buildPasswordInput() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("Password"),
-        const SizedBox(height: 5),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: TextField(
-            textAlign: TextAlign.center,
-            obscureText: obscurePassword,
-           decoration: InputDecoration(
-           border: InputBorder.none,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  obscurePassword
-                      ? Icons.visibility_off
-                      : Icons.visibility,
-                ),
-                onPressed: () {
-                  setState(() {
-                    obscurePassword = !obscurePassword;
-                  });
-                },
+  // Input rows
+  Widget buildInputRow(String label, String hint) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
               ),
             ),
           ),
-        ),
-      ],
+
+          Expanded(
+            child: Container(
+              height: 45,
+              decoration: BoxDecoration(
+                color: const Color(0xffEDEDED),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    offset: const Offset(-2, -2),
+                    blurRadius: 4,
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    offset: const Offset(2, 2),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: TextField(
+                style: const TextStyle(fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: hint,
+                  hintStyle: const TextStyle(color: Colors.black38),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔐 Password Row
+  Widget buildPasswordRow() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          const SizedBox(
+            width: 110,
+            child: Text(
+              "Password",
+              style: TextStyle(fontSize: 14, color: Colors.black54),
+            ),
+          ),
+
+          Expanded(
+            child: Container(
+              height: 45,
+              decoration: BoxDecoration(
+                color: const Color(0xffEDEDED),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    offset: const Offset(-2, -2),
+                    blurRadius: 4,
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    offset: const Offset(2, 2),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: TextField(
+                obscureText: obscurePassword,
+                decoration: InputDecoration(
+                  hintText: "Enter password",
+                  border: InputBorder.none,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 15),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        obscurePassword = !obscurePassword;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

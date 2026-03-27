@@ -15,7 +15,7 @@ class _AccountUserState extends State<AccountUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xffffffff),
 
       body: Stack(
         children: [
