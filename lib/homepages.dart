@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shuttle_bus_fronted/account_user.dart';
 
 class Homepages extends StatefulWidget {
   const Homepages({super.key});
@@ -279,9 +280,11 @@ class _HomepagesState extends State<Homepages> {
                   // Menu Profile    
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        currentIndex = 2;
-                      });
+                     Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AccountUser(),
+                     ),
+                     );
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
