@@ -1,91 +1,105 @@
 import 'package:flutter/material.dart';
+import 'package:shuttle_bus_fronted/homepages.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class UpdatesAccountUser extends StatefulWidget {
+  const UpdatesAccountUser({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SuccessScreen(),
-    );
-  }
+  State<UpdatesAccountUser> createState() => _UpdatesAccountUserState();
 }
 
-class SuccessScreen extends StatelessWidget {
-  const SuccessScreen({super.key});
-
+class _UpdatesAccountUserState extends State<UpdatesAccountUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            
-            // วงกลมเขียว + เครื่องหมายถูก
-            Container(
-              width: 150,
-              height: 150,
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 9, 243, 17),
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Icon(
+      backgroundColor: const Color(0xffffffff),
+
+      body: Center( 
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center, 
+            children: [
+
+              // Confirm icon
+              Container(
+                width: 140,
+                height: 140,
+                decoration: BoxDecoration(
+                  color: const Color(0xff4CAF50),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: const Icon(
                   Icons.check,
-                  color: Colors.black,
-                  size: 80,
+                  color: Colors.white,
+                  size: 70,
                 ),
               ),
-            ),
 
-            const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-            // ข้อความหลัก
-            const Text(
-              "Update Complete",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // ข้อความรอง
-            const Text(
-              "Your Profile has been successfully updated .",
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
-
-            const SizedBox(height: 40),
-
-            // ปุ่ม
-            ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 40, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+              // Title
+              const Text(
+                "Update Complete",
+                textAlign: TextAlign.center, 
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              child: const Text(
-                "Returns Home",
-                style: TextStyle(color: Colors.white),
+
+              const SizedBox(height: 10),
+
+              // Subtitle
+              const Text(
+                "Your profile has been successfully updated.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 40),
+
+              // Return Button
+              SizedBox(
+                width: 200,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    elevation: 5,
+                    shadowColor: Colors.black.withValues(alpha: 0.2),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Homepages(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "Return Home",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

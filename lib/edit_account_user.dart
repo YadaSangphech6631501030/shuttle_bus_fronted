@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shuttle_bus_fronted/account_user.dart';
+import 'package:shuttle_bus_fronted/updates_account_user.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -103,7 +103,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const AccountUser(),
+                          builder: (context) => const UpdatesAccountUser(),
                         ),
                       );
                     },
