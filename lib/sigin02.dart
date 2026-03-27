@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shuttle_bus_fronted/homepages.dart';
 import 'signup.dart';
+import 'homepages.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Signin02 extends StatelessWidget {
@@ -72,7 +74,7 @@ class Signin02 extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // button
+                // password button
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -103,7 +105,7 @@ class Signin02 extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                // button
+                //  Sign in button
                 Center(
                   child: SizedBox(
                     width: 200,
@@ -118,7 +120,12 @@ class Signin02 extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        print("Sign in");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Homepages(),
+                          ),
+                        );
                       },
                       child: const Text(
                         "Sign in",

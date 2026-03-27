@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shuttle_bus_fronted/sigin02.dart';
-import '';
 import 'package:google_fonts/google_fonts.dart';
 
 class Signup extends StatelessWidget {
