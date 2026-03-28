@@ -12,6 +12,62 @@ class Homepages extends StatefulWidget {
 }
 
 class _HomepagesState extends State<Homepages> {
+
+   // left menu for  support admin 
+  OverlayEntry? overlayEntry;
+  void showHelpPopup() {
+    overlayEntry = OverlayEntry(
+      builder: (context) => Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              overlayEntry?.remove();
+            },
+            child: Container(color: Colors.transparent),
+          ),
+
+          Positioned(
+            top: 100,
+            left: 20,
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                width: 300,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.email_outlined),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Email us\nsupportit@gmail.com",
+                        style: GoogleFonts.kanit(fontSize: 18),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry!);
+  }
+
+  // Map MFU Bus
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> line1 = [
@@ -183,7 +239,7 @@ class _HomepagesState extends State<Homepages> {
                     decoration: const BoxDecoration(shape: BoxShape.circle),
                     child: IconButton(
                       icon: const Icon(Icons.help_outline),
-                      onPressed: () {},
+                      onPressed: showHelpPopup,
                     ),
                   ),
 
@@ -253,7 +309,7 @@ class _HomepagesState extends State<Homepages> {
                             height: 50,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              
+
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
@@ -275,16 +331,17 @@ class _HomepagesState extends State<Homepages> {
                   ),
 
                   // Menu Bus
-                       Center(child: Image.asset('assets/bus.png', height: 50)),
+                  Center(child: Image.asset('assets/bus.png', height: 50)),
 
-                  // Menu Profile    
+                  // Menu Profile
                   GestureDetector(
                     onTap: () {
-                     Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AccountUser(),
-                     ),
-                     );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AccountUser(),
+                        ),
+                      );
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
