@@ -133,8 +133,8 @@ class _LineSectionState extends State<LineSection> {
                 ),
                 Icon(
                   isOpen
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
+                      ? Icons.add_circle_outline
+                      : Icons.remove_circle_outline,
                   color: Colors.white,
                 ),
               ],
