@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shuttle_bus_fronted/bus_time.dart';
 
 class BusStationPage extends StatelessWidget {
   const BusStationPage({super.key});
@@ -143,7 +144,7 @@ class _LineSectionState extends State<LineSection> {
         ),
 
         const SizedBox(height: 10),
-
+    
        
         AnimatedCrossFade(
           duration: const Duration(milliseconds: 200),
@@ -203,28 +204,37 @@ class _LineSectionState extends State<LineSection> {
                             child: Text("ไม่พบสถานี"),
                           )
                         ]
-                      : filtered.map((station) {
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Text(station),
-                                trailing: const Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 14,
-                                ),
-                              ),
-                              const Divider(height: 1),
-                            ],
-                          );
-                        }).toList(),
+                     : filtered.map((station) {
+    return Column(
+      children: [
+        ListTile(
+          title: Text(station),
+          trailing: const Icon(
+            Icons.arrow_forward_ios,
+            size: 14,
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BusTimePage(
+                ),
+              ),
+            );
+          },
+        ),
+        const Divider(height: 1),
+      ],
+    );
+}).toList(),
                 ),
               ),
             ],
-          ),
-
-          secondChild: const SizedBox(),
+          ), 
+          secondChild: const SizedBox.shrink(),
         ),
       ],
     );
+
   }
 }
