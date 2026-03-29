@@ -284,7 +284,7 @@ class _HomepagesState extends State<Homepages> {
             child: Container(
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.black,
                 borderRadius: BorderRadius.circular(40),
                 boxShadow: [
                   BoxShadow(
