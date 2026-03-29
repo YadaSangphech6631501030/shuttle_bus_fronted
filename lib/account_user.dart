@@ -187,7 +187,7 @@ class _AccountUserState extends State<AccountUser> {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          "Profile",
+                          "Account",
                           style: TextStyle(color: Colors.white, fontSize: 12),
                         ),
                       ],
