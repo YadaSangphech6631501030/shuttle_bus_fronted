@@ -187,7 +187,7 @@ class _LineSectionState extends State<LineSection> {
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xffEDEDED),
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: const [
                     BoxShadow(
