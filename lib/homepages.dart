@@ -180,10 +180,11 @@ class _HomepagesState extends State<Homepages> {
                       onTap: () {
                         showDialog(
                           context: context,
+                          barrierDismissible: true,
                           builder: (_) => AlertDialog(
                             backgroundColor: Colors.white,
                             title: Text(
-                              station["name"],
+                             "${station["name"]}\nจจำนวนผู้โดยสารที่รออยู่ : 0 คน",
                               style: GoogleFonts.kanit(fontSize: 18),
                             ),
                           ),
