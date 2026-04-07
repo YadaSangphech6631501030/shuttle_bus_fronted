@@ -184,7 +184,7 @@ class _HomepagesState extends State<Homepages> {
                           builder: (_) => AlertDialog(
                             backgroundColor: Colors.white,
                             title: Text(
-                             "${station["name"]}\nจจำนวนผู้โดยสารที่รออยู่ : 0 คน",
+                             "${station["name"]}\nจำนวนผู้โดยสารที่รออยู่ : 0 คน",
                               style: GoogleFonts.kanit(fontSize: 18),
                             ),
                           ),
