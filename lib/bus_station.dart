@@ -69,6 +69,7 @@ class BusStationPage extends StatelessWidget {
         ),
       ),
     );
+  }//
   }
 }
 class LineSection extends StatefulWidget {
