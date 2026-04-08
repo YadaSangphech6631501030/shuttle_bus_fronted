@@ -170,13 +170,17 @@ class _HomepagesState extends State<Homepages> {
                     point: snappedPoint,
                     width: 60,
                     height: 60,
+                    point: LatLng(station["lat"], station["lng"]),
+                 
+                    alignment: Alignment.bottomCenter, 
                     child: GestureDetector(
                       onTap: () {
                         showDialog(
                           context: context,
+                          barrierDismissible: true,
                           builder: (_) => AlertDialog(
                             title: Text(
-                              station["name"],
+                             "${station["name"]}\nจำนวนผู้โดยสารที่รออยู่ : 0 คน",
                               style: GoogleFonts.kanit(fontSize: 18),
                             ),
                           ),
