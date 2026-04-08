@@ -7,70 +7,76 @@ class BusStationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF2F2F2), // 🔥 เทาอ่อนเหมือนรูป
       body: SafeArea(
-        child: SingleChildScrollView( 
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
 
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "MFU Transit",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+              // 🔹 Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "MFU Transit",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
                     ),
-                    IconButton(
+                  ),
+
+                  // ❗ ปุ่ม X มีกรอบเขียว
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.green, width: 2),
+                    ),
+                    child: IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                    )
-                  ],
-                ),
+                    ),
+                  ),
+                ],
+              ),
 
-                const SizedBox(height: 20),
+              const SizedBox(height: 30),
 
-                // สาย 1
-                const LineSection(
-                  title: "สาย 1",
-                  stations: [
-                    "01 จุดหอพักลาน 2",
-                    "02 จุดอาคาร F",
-                    "03 จุดอาคาร M-square",
-                    "04 จุดศูนย์จีน ขาออก",
-                    "05 จุดทางเข้าสระว่ายน้ำ",
-                  ],
-                ),
+              // 🔹 สาย 1
+              const LineSection(
+                title: "สาย 1",
+                stations: [
+                  "01 จุดหอพักลาน 2",
+                  "02 จุดอาคาร F",
+                  "03 จุดอาคาร M-square",
+                  "04 จุดศูนย์จีน ขาออก",
+                  "05 จุดทางเข้าสระว่ายน้ำ",
+                ],
+              ),
 
-                const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
-                // สาย 2
-                const LineSection(
-                  title: "สาย 2 (โรงพยาบาลแม่ฟ้าหลวง)",
-                  stations: [
-                    "01 จุดหอพักลาน 2",
-                    "02 จุดอาคาร F",
-                    "03 จุดอาคาร M-square",
-                    "04 จุดศูนย์จีน ขาออก",
-                    "05 จุดทางเข้าสระว่ายน้ำ",
-                  ],
-                ),
-              ],
-            ),
+              // 🔹 สาย 2
+              const LineSection(
+                title: "สาย 2(โรงพยาบาลแม่ฟ้าหลวง)",
+                stations: [
+                  "01 จุดหอพักลาน 2",
+                  "02 จุดอาคาร F",
+                  "03 จุดอาคาร M-square",
+                  "04 จุดศูนย์จีน ขาออก",
+                  "05 จุดทางเข้าสระว่ายน้ำ",
+                ],
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 }
+
 class LineSection extends StatefulWidget {
   final String title;
   final List<String> stations;
@@ -86,45 +92,32 @@ class LineSection extends StatefulWidget {
 }
 
 class _LineSectionState extends State<LineSection> {
-  String search = "";
   bool isOpen = false;
 
   @override
   Widget build(BuildContext context) {
-    final filtered = widget.stations
-        .where((s) => s.toLowerCase().contains(search.toLowerCase()))
-        .toList();
-
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
 
-        // popup open/close
+        // 🔥 ปุ่มดำเหมือนในรูป
         GestureDetector(
           onTap: () {
             setState(() {
               isOpen = !isOpen;
             });
           },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+          child: Container(
+            height: 60,
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: isOpen ? Colors.black87 : Colors.black,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                if (isOpen)
-                  const BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  )
-              ],
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                const Icon(Icons.add_circle_outline, color: Colors.white),
+                const SizedBox(width: 10),
                 Text(
                   widget.title,
                   style: const TextStyle(
@@ -132,109 +125,48 @@ class _LineSectionState extends State<LineSection> {
                     fontSize: 16,
                   ),
                 ),
-                Icon(
-                  isOpen
-                      ? Icons.add_circle_outline
-                      : Icons.remove_circle_outline,
-                  color: Colors.white,
-                ),
               ],
             ),
           ),
         ),
 
         const SizedBox(height: 10),
-    
-       
-        AnimatedCrossFade(
-          duration: const Duration(milliseconds: 200),
-          crossFadeState:
-              isOpen ? CrossFadeState.showFirst : CrossFadeState.showSecond,
 
-          firstChild: Column(
-            children: [
-
-              // Search
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                    )
+        // 🔽 แสดง list เมื่อกด
+        if (isOpen)
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(top: 5),
+            decoration: BoxDecoration(
+              color: const Color(0xffEDEDED),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              children: widget.stations.map((station) {
+                return Column(
+                  children: [
+                    ListTile(
+                      title: Text(station),
+                      trailing: const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 14,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BusTimePage(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1),
                   ],
-                ),
-                child: TextField(
-                  onChanged: (value) {
-                    setState(() {
-                      search = value;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    hintText: "Find Station...",
-                    prefixIcon: Icon(Icons.search),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 14),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // Station List
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color(0xffEDEDED),
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                    )
-                  ],
-                ),
-                child: Column(
-                  children: filtered.isEmpty
-                      ? [
-                          const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Text("ไม่พบสถานี"),
-                          )
-                        ]
-                     : filtered.map((station) {
-    return Column(
-      children: [
-        ListTile(
-          title: Text(station),
-          trailing: const Icon(
-            Icons.arrow_forward_ios,
-            size: 14,
+                );
+              }).toList(),
+            ),
           ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BusTimePage(
-                ),
-              ),
-            );
-          },
-        ),
-        const Divider(height: 1),
       ],
     );
-}).toList(),
-                ),
-              ),
-            ],
-          ), 
-          secondChild: const SizedBox.shrink(),
-        ),
-      ],
-    );
-
   }
 }
