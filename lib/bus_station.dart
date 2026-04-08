@@ -7,7 +7,7 @@ class BusStationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F2), // 🔥 เทาอ่อนเหมือนรูป
+      backgroundColor: const Color(0xFFF2F2F2), 
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -99,7 +99,7 @@ class _LineSectionState extends State<LineSection> {
     return Column(
       children: [
 
-        // 🔥 ปุ่มดำเหมือนในรูป
+       
         GestureDetector(
           onTap: () {
             setState(() {
@@ -132,7 +132,7 @@ class _LineSectionState extends State<LineSection> {
 
         const SizedBox(height: 10),
 
-        // 🔽 แสดง list เมื่อกด
+       
         if (isOpen)
           Container(
             width: double.infinity,
@@ -169,4 +169,4 @@ class _LineSectionState extends State<LineSection> {
       ],
     );
   }
-}
+} //
