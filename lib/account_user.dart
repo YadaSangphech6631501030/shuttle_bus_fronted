@@ -68,7 +68,7 @@ class _AccountUserState extends State<AccountUser> {
                         child: const Icon(
                           Icons.edit,
                           size: 20,
-                          color: Colors.green,
+                          color: Colors.black,
                         ),
                       ),
                       ),
@@ -131,7 +131,7 @@ class _AccountUserState extends State<AccountUser> {
             child: Container(
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.black,
                 borderRadius: BorderRadius.circular(40),
                 boxShadow: [
                   BoxShadow(
@@ -187,7 +187,7 @@ class _AccountUserState extends State<AccountUser> {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          "Profile",
+                          "Account",
                           style: TextStyle(color: Colors.white, fontSize: 12),
                         ),
                       ],

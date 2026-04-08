@@ -6,7 +6,7 @@ class BusTimePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -22,15 +22,13 @@ class BusTimePage extends StatelessWidget {
                   color: Colors.black,
                   borderRadius: BorderRadius.circular(18),
                 ),
+                // icons back
                 child: Row(
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.green),
-                        ),
                         child: const Icon(Icons.arrow_back,
                             color: Colors.white),
                       ),
@@ -49,16 +47,16 @@ class BusTimePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-             
+             // Bus times list
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: const Color(0xffEDEDED),
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: const [
                     BoxShadow(
-                      color: Colors.black12,
+                     color: Colors.black12,
                       blurRadius: 4,
                       offset: Offset(0, 2),
                     )
@@ -77,7 +75,7 @@ class BusTimePage extends StatelessWidget {
 
                     const SizedBox(height: 12),
 
-                  
+                    // Body
                     buildRow("01", "กำลังเข้าสู่สถานี"),
                     buildRow("02", "3 นาที 0 วินาที"),
                     buildRow("03", "8 นาที 5 วินาที"),
@@ -93,7 +91,7 @@ class BusTimePage extends StatelessWidget {
     );
   }
 
-  // 🔹 Header
+  // Header
   Widget buildHeader(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),

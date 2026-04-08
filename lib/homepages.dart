@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shuttle_bus_fronted/account_user.dart';
+import 'package:shuttle_bus_fronted/bus_station.dart';
 
 class Homepages extends StatefulWidget {
   const Homepages({super.key});
@@ -12,6 +13,91 @@ class Homepages extends StatefulWidget {
 }
 
 class _HomepagesState extends State<Homepages> {
+  // left menu for  support admin
+  OverlayEntry? overlayEntry;
+  void showHelpPopup() {
+    overlayEntry = OverlayEntry(
+      builder: (context) => Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              overlayEntry?.remove();
+            },
+            child: Container(color: Colors.transparent),
+          ),
+
+          Positioned(
+            top: 100,
+            left: 20,
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                width: 300,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.email_outlined),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Email us\nsupportit@gmail.com",
+                        style: GoogleFonts.kanit(fontSize: 18),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry!);
+  }
+
+ List<LatLng> catmullRomSpline(List<LatLng> points, {int segments = 10}) {
+  List<LatLng> result = [];
+  for (int i = 0; i < points.length - 1; i++) {
+    LatLng p0 = i > 0 ? points[i - 1] : points[i];
+    LatLng p1 = points[i];
+    LatLng p2 = points[i + 1];
+    LatLng p3 = i < points.length - 2 ? points[i + 2] : points[i + 1];
+
+    for (int j = 0; j <= segments; j++) {
+      double t = j / segments;
+      double tt = t * t;
+      double ttt = tt * t;
+
+      double lat = 0.5 * ((2 * p1.latitude) +
+          (-p0.latitude + p2.latitude) * t +
+          (2 * p0.latitude - 5 * p1.latitude + 4 * p2.latitude - p3.latitude) * tt +
+          (-p0.latitude + 3 * p1.latitude - 3 * p2.latitude + p3.latitude) * ttt);
+
+      double lng = 0.5 * ((2 * p1.longitude) +
+          (-p0.longitude + p2.longitude) * t +
+          (2 * p0.longitude - 5 * p1.longitude + 4 * p2.longitude - p3.longitude) * tt +
+          (-p0.longitude + 3 * p1.longitude - 3 * p2.longitude + p3.longitude) * ttt);
+
+      result.add(LatLng(lat, lng));
+    }
+  }
+  result.add(points.last);
+  return result;
+}
+
+  // Map MFU Bus
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> line1 = [
@@ -97,6 +183,12 @@ class _HomepagesState extends State<Homepages> {
       },
     ];
 
+    final rawPoints = line1.map((e) => LatLng(e["lat"], e["lng"])).toList();
+
+    print(rawPoints);
+
+    final smoothPoints = catmullRomSpline(rawPoints);
+
     return Scaffold(
       body: Stack(
         children: [
@@ -112,28 +204,38 @@ class _HomepagesState extends State<Homepages> {
                     "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 subdomains: ['a', 'b', 'c', 'd'],
               ),
+              // Line
 
               // Markers
               MarkerLayer(
                 markers: line1.map((station) {
                   return Marker(
                     point: LatLng(station["lat"], station["lng"]),
-                    width: 80,
-                    height: 80,
+                    width: 60,
+                    height: 60,
+                    alignment: Alignment.bottomCenter,
                     child: GestureDetector(
                       onTap: () {
                         showDialog(
                           context: context,
+                          barrierDismissible: true,
                           builder: (_) => AlertDialog(
                             backgroundColor: Colors.white,
                             title: Text(
-                              station["name"],
+                              "${station["name"]}\nจำนวนผู้โดยสารที่รออยู่ : 0 คน",
                               style: GoogleFonts.kanit(fontSize: 18),
                             ),
                           ),
                         );
                       },
-                      child: const Icon(Icons.location_on, color: Colors.red),
+                      child: Transform.translate(
+                        offset: const Offset(0, -10), // ลอยขึ้น 10 px
+                        child: const Icon(
+                          Icons.location_on,
+                          color: Colors.red,
+                          size: 36,
+                        ),
+                      ),
                     ),
                   );
                 }).toList(),
@@ -143,9 +245,7 @@ class _HomepagesState extends State<Homepages> {
               PolylineLayer(
                 polylines: [
                   Polyline(
-                    points: line1
-                        .map((e) => LatLng(e["lat"], e["lng"]))
-                        .toList(),
+                    points: smoothPoints,
                     color: Colors.green,
                     strokeWidth: 4,
                   ),
@@ -183,17 +283,21 @@ class _HomepagesState extends State<Homepages> {
                     decoration: const BoxDecoration(shape: BoxShape.circle),
                     child: IconButton(
                       icon: const Icon(Icons.help_outline),
-                      onPressed: () {},
+                      onPressed: showHelpPopup,
                     ),
                   ),
 
                   // right menu line of bus
-                  Container(
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: IconButton(
-                      icon: const Icon(Icons.menu),
-                      onPressed: () {},
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const BusStationPage(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -224,7 +328,7 @@ class _HomepagesState extends State<Homepages> {
             child: Container(
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: Colors.black,
                 borderRadius: BorderRadius.circular(40),
                 boxShadow: [
                   BoxShadow(
@@ -253,7 +357,7 @@ class _HomepagesState extends State<Homepages> {
                             height: 50,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              
+
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
@@ -275,16 +379,17 @@ class _HomepagesState extends State<Homepages> {
                   ),
 
                   // Menu Bus
-                       Center(child: Image.asset('assets/bus.png', height: 50)),
+                  Center(child: Image.asset('assets/bus.png', height: 50)),
 
-                  // Menu Profile    
+                  // Menu Profile
                   GestureDetector(
                     onTap: () {
-                     Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AccountUser(),
-                     ),
-                     );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AccountUser(),
+                        ),
+                      );
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -297,7 +402,7 @@ class _HomepagesState extends State<Homepages> {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          "Profile",
+                          "Account",
                           style: TextStyle(color: Colors.white, fontSize: 12),
                         ),
                       ],

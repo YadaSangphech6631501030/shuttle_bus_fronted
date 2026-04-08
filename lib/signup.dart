@@ -134,7 +134,7 @@ class Signup extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                // button
+                 //  Sign up button
                 Center(
                   child: SizedBox(
                     width: 200,
@@ -149,7 +149,12 @@ class Signup extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        print("Sign up");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Signin02(),
+                          ),
+                        );
                       },
                       child: const Text(
                         "Sign up",
@@ -158,6 +163,7 @@ class Signup extends StatelessWidget {
                     ),
                   ),
                 ),
+
 
                 const SizedBox(height: 20),
 
