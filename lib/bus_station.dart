@@ -9,13 +9,12 @@ class BusStationPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView( 
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 // Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -32,7 +31,7 @@ class BusStationPage extends StatelessWidget {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                    )
+                    ),
                   ],
                 ),
 
@@ -69,18 +68,14 @@ class BusStationPage extends StatelessWidget {
         ),
       ),
     );
-  }//
-  }
+  } //
 }
+
 class LineSection extends StatefulWidget {
   final String title;
   final List<String> stations;
 
-  const LineSection({
-    super.key,
-    required this.title,
-    required this.stations,
-  });
+  const LineSection({super.key, required this.title, required this.stations});
 
   @override
   State<LineSection> createState() => _LineSectionState();
@@ -99,7 +94,6 @@ class _LineSectionState extends State<LineSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         // popup open/close
         GestureDetector(
           onTap: () {
@@ -120,51 +114,45 @@ class _LineSectionState extends State<LineSection> {
                     color: Colors.black26,
                     blurRadius: 6,
                     offset: Offset(0, 3),
-                  )
+                  ),
               ],
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-                Icon(
-                  isOpen
-                      ? Icons.add_circle_outline
-                      : Icons.remove_circle_outline,
-                  color: Colors.white,
-                ),
-              ],
-            ),
+  mainAxisAlignment: MainAxisAlignment.start,
+  children: [
+    Icon(
+      isOpen
+          ? Icons.remove_circle_outline
+          : Icons.add_circle_outline,
+      color: Colors.white,
+    ),
+    const SizedBox(width: 8),
+    Text(
+      widget.title,
+      style: const TextStyle(color: Colors.white, fontSize: 16),
+    ),
+  ],
+)
           ),
         ),
 
         const SizedBox(height: 10),
-    
-       
+
         AnimatedCrossFade(
           duration: const Duration(milliseconds: 200),
-          crossFadeState:
-              isOpen ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          crossFadeState: isOpen
+              ? CrossFadeState.showFirst
+              : CrossFadeState.showSecond,
 
           firstChild: Column(
             children: [
-
               // Search
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                    )
+                    BoxShadow(color: Colors.black12, blurRadius: 4),
                   ],
                 ),
                 child: TextField(
@@ -191,10 +179,7 @@ class _LineSectionState extends State<LineSection> {
                   color: const Color(0xffEDEDED),
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                    )
+                    BoxShadow(color: Colors.black12, blurRadius: 4),
                   ],
                 ),
                 child: Column(
@@ -203,39 +188,37 @@ class _LineSectionState extends State<LineSection> {
                           const Padding(
                             padding: EdgeInsets.all(16),
                             child: Text("ไม่พบสถานี"),
-                          )
+                          ),
                         ]
-                     : filtered.map((station) {
-    return Column(
-      children: [
-        ListTile(
-          title: Text(station),
-          trailing: const Icon(
-            Icons.arrow_forward_ios,
-            size: 14,
-          ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BusTimePage(
-                ),
-              ),
-            );
-          },
-        ),
-        const Divider(height: 1),
-      ],
-    );
-}).toList(),
+                      : filtered.map((station) {
+                          return Column(
+                            children: [
+                              ListTile(
+                                title: Text(station),
+                                trailing: const Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 14,
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BusTimePage(),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const Divider(height: 1),
+                            ],
+                          );
+                        }).toList(),
                 ),
               ),
             ],
-          ), 
+          ),
           secondChild: const SizedBox.shrink(),
         ),
       ],
     );
-
   }
 }
