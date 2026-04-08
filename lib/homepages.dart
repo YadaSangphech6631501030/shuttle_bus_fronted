@@ -174,8 +174,8 @@ class _HomepagesState extends State<Homepages> {
                 markers: line1.map((station) {
                   return Marker(
                     point: LatLng(station["lat"], station["lng"]),
-                    width: 80,
-                    height: 80,
+                 
+                    alignment: Alignment.bottomCenter, 
                     child: GestureDetector(
                       onTap: () {
                         showDialog(
