@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shuttle_bus_fronted/account_user.dart';
 import 'package:shuttle_bus_fronted/bus_station.dart';
@@ -13,6 +12,7 @@ class Homepages extends StatefulWidget {
 }
 
 class _HomepagesState extends State<Homepages> {
+
   // left menu for  support admin
   OverlayEntry? overlayEntry;
   void showHelpPopup() {
@@ -66,36 +66,6 @@ class _HomepagesState extends State<Homepages> {
 
     Overlay.of(context).insert(overlayEntry!);
   }
-
- List<LatLng> catmullRomSpline(List<LatLng> points, {int segments = 10}) {
-  List<LatLng> result = [];
-  for (int i = 0; i < points.length - 1; i++) {
-    LatLng p0 = i > 0 ? points[i - 1] : points[i];
-    LatLng p1 = points[i];
-    LatLng p2 = points[i + 1];
-    LatLng p3 = i < points.length - 2 ? points[i + 2] : points[i + 1];
-
-    for (int j = 0; j <= segments; j++) {
-      double t = j / segments;
-      double tt = t * t;
-      double ttt = tt * t;
-
-      double lat = 0.5 * ((2 * p1.latitude) +
-          (-p0.latitude + p2.latitude) * t +
-          (2 * p0.latitude - 5 * p1.latitude + 4 * p2.latitude - p3.latitude) * tt +
-          (-p0.latitude + 3 * p1.latitude - 3 * p2.latitude + p3.latitude) * ttt);
-
-      double lng = 0.5 * ((2 * p1.longitude) +
-          (-p0.longitude + p2.longitude) * t +
-          (2 * p0.longitude - 5 * p1.longitude + 4 * p2.longitude - p3.longitude) * tt +
-          (-p0.longitude + 3 * p1.longitude - 3 * p2.longitude + p3.longitude) * ttt);
-
-      result.add(LatLng(lat, lng));
-    }
-  }
-  result.add(points.last);
-  return result;
-}
 
   // Map MFU Bus
   @override
@@ -183,76 +153,45 @@ class _HomepagesState extends State<Homepages> {
       },
     ];
 
-    final rawPoints = line1.map((e) => LatLng(e["lat"], e["lng"])).toList();
+    // LatLng
+     List<LatLng> points = line1
+      .map((e) => LatLng(e["lat"], e["lng"]))
+      .toList();
 
-    print(rawPoints);
+      //Markers
+      Set<Marker> markers = line1.map((station) {
+    return Marker(
+      markerId: MarkerId(station["name"]),
+      position: LatLng(station["lat"], station["lng"]),
+      infoWindow: InfoWindow(
+        title: station["name"],
+        snippet: "ผู้โดยสาร: 0 คน",
+      ),
+    );
+  }).toSet();
 
-    final smoothPoints = catmullRomSpline(rawPoints);
+      // Polylines
+      Set<Polyline> polylines = {
+    Polyline(
+      polylineId: const PolylineId("route"),
+      points: points,
+      color: Colors.green,
+      width: 5,
+    ),
+  };
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          // MFU Map
-          FlutterMap(
-            options: MapOptions(
-              initialCenter: LatLng(20.045, 99.894),
-              initialZoom: 16,
-            ),
-            children: [
-              TileLayer(
-                urlTemplate:
-                    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-                subdomains: ['a', 'b', 'c', 'd'],
-              ),
-              // Line
 
-              // Markers
-              MarkerLayer(
-                markers: line1.map((station) {
-                  return Marker(
-                    point: LatLng(station["lat"], station["lng"]),
-                    width: 60,
-                    height: 60,
-                    alignment: Alignment.bottomCenter,
-                    child: GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: true,
-                          builder: (_) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            title: Text(
-                              "${station["name"]}\nจำนวนผู้โดยสารที่รออยู่ : 0 คน",
-                              style: GoogleFonts.kanit(fontSize: 18),
-                            ),
-                          ),
-                        );
-                      },
-                      child: Transform.translate(
-                        offset: const Offset(0, -10), // ลอยขึ้น 10 px
-                        child: const Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 36,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-
-              // route bus line
-              PolylineLayer(
-                polylines: [
-                  Polyline(
-                    points: smoothPoints,
-                    color: Colors.green,
-                    strokeWidth: 4,
-                  ),
-                ],
-              ),
-            ],
+   return Scaffold(
+    body: Stack(
+      children: [
+          GoogleMap(
+          initialCameraPosition: const CameraPosition(
+            target: LatLng(20.045, 99.894),
+            zoom: 16,
           ),
+          markers: markers,
+          polylines: polylines,
+        ),
 
           // App bar
           Positioned(
