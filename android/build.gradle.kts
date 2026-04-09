@@ -1,3 +1,6 @@
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+
 allprojects {
     repositories {
         google()
