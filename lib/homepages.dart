@@ -180,7 +180,7 @@ class _HomepagesState extends State<Homepages> {
       Set<Polyline> polylines = {
     Polyline(
       polylineId: const PolylineId("route"),
-      points: points,
+      points: line1.map((e) => LatLng(e["lat"], e["lng"])).toList(),
       color: Colors.green,
       width: 5,
     ),
