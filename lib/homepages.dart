@@ -13,6 +13,8 @@ class Homepages extends StatefulWidget {
 
 class _HomepagesState extends State<Homepages> {
 
+  Map<String, dynamic>? selectedStation;
+
   // left menu for  support admin
   OverlayEntry? overlayEntry;
   void showHelpPopup() {
@@ -159,16 +161,20 @@ class _HomepagesState extends State<Homepages> {
       .toList();
 
       //Markers
-      Set<Marker> markers = line1.map((station) {
-    return Marker(
-      markerId: MarkerId(station["name"]),
-      position: LatLng(station["lat"], station["lng"]),
-      infoWindow: InfoWindow(
-        title: station["name"],
-        snippet: "ผู้โดยสาร: 0 คน",
-      ),
-    );
-  }).toSet();
+     Set<Marker> markers = line1.map<Marker>((station) {
+  return Marker(
+    markerId: MarkerId(station["name"].toString()),
+    position: LatLng(
+      station["lat"] as double,
+      station["lng"] as double,
+    ),
+    onTap: () {
+      setState(() {
+        selectedStation = station;
+      });
+    },
+  );
+}).toSet();
 
       // Polylines
       Set<Polyline> polylines = {
@@ -191,7 +197,53 @@ class _HomepagesState extends State<Homepages> {
           ),
           markers: markers,
           polylines: polylines,
+          onTap: (_) {
+           setState(() {
+          selectedStation = null; // close popup
+       });
+      },
+    ),
+
+      if (selectedStation != null)
+  Positioned(
+    top: 200,
+    left: 40,
+    right: 40,
+    child: Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              selectedStation!["name"],
+              style: GoogleFonts.kanit(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "ผู้โดยสารที่รอ : 0 คน",
+              style: GoogleFonts.kanit(fontSize: 17),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
 
           // App bar
           Positioned(
