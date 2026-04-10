@@ -14,15 +14,14 @@ class _UpdatesAccountUserState extends State<UpdatesAccountUser> {
     return Scaffold(
       backgroundColor: const Color(0xffffffff),
 
-      body: Center( 
+      body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center, 
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-
               // Confirm icon
               Container(
                 width: 140,
@@ -38,11 +37,7 @@ class _UpdatesAccountUserState extends State<UpdatesAccountUser> {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.check,
-                  color: Colors.white,
-                  size: 70,
-                ),
+                child: const Icon(Icons.check, color: Colors.white, size: 70),
               ),
 
               const SizedBox(height: 30),
@@ -50,11 +45,8 @@ class _UpdatesAccountUserState extends State<UpdatesAccountUser> {
               // Title
               const Text(
                 "Update Complete",
-                textAlign: TextAlign.center, 
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                ),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
               ),
 
               const SizedBox(height: 10),
@@ -63,10 +55,7 @@ class _UpdatesAccountUserState extends State<UpdatesAccountUser> {
               const Text(
                 "Your profile has been successfully updated.",
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.black54),
               ),
 
               const SizedBox(height: 40),

@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:shuttle_bus_fronted/homepages.dart';
 import 'signup.dart';
-import 'homepages.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:shuttle_bus_fronted/services/api_service.dart';
 
-class Signin02 extends StatelessWidget {
+final usernameController = TextEditingController();
+final passwordController = TextEditingController();
+
+class Signin02 extends StatefulWidget {
   const Signin02({super.key});
+
+  @override
+  State<Signin02> createState() => _Signin02State();
+}
+
+class _Signin02State extends State<Signin02> {
+  bool isLoading = false;
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +38,6 @@ class Signin02 extends StatelessWidget {
               children: [
                 const SizedBox(height: 20),
 
-                // mfu logo
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Image.asset('assets/mfu_logo.png', height: 90),
@@ -28,17 +45,14 @@ class Signin02 extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // bus
                 Center(child: Image.asset('assets/bus.png', height: 120)),
 
                 const SizedBox(height: 40),
 
-                //Username
                 const Text("Username"),
 
                 const SizedBox(height: 20),
 
-                // button
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -51,14 +65,14 @@ class Signin02 extends StatelessWidget {
                     ],
                   ),
                   child: TextField(
+                    controller: usernameController,
                     decoration: InputDecoration(
                       hintText: "Enter your username",
                       prefixIcon: Icon(Icons.account_box),
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                      ),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -69,12 +83,10 @@ class Signin02 extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                //password label
                 const Text("Password"),
 
                 const SizedBox(height: 20),
 
-                // password button
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -87,14 +99,15 @@ class Signin02 extends StatelessWidget {
                     ],
                   ),
                   child: TextField(
+                    controller: passwordController,
+                    obscureText: true,
                     decoration: InputDecoration(
                       hintText: "Enter your password",
                       prefixIcon: Icon(Icons.key),
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                      ),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -105,7 +118,6 @@ class Signin02 extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                //  Sign in button
                 Center(
                   child: SizedBox(
                     width: 200,
@@ -119,25 +131,47 @@ class Signin02 extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Homepages(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        "Sign in",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              if (usernameController.text.isEmpty ||
+                                  passwordController.text.isEmpty) {
+                                _showError("Please fill all fields");
+                                return;
+                              }
+
+                              setState(() => isLoading = true);
+
+                              String? error = await ApiService.login(
+                                usernameController.text,
+                                passwordController.text,
+                              );
+
+                              setState(() => isLoading = false);
+
+                              if (error == null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const Homepages()),
+                                );
+                              } else {
+                                _showError(error);
+                              }
+                            },
+                      child: isLoading
+                          ? const CircularProgressIndicator(
+                              color: Colors.white)
+                          : const Text(
+                              "Sign in",
+                              style: TextStyle(color: Colors.white),
+                            ),
                     ),
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                // Sign up
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

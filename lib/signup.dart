@@ -1,9 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:shuttle_bus_fronted/sigin02.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:shuttle_bus_fronted/services/api_service.dart';
 
-class Signup extends StatelessWidget {
+class Signup extends StatefulWidget {
   const Signup({super.key});
+
+  @override
+  State<Signup> createState() => _SignupState();
+}
+
+class _SignupState extends State<Signup> {
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+  final emailController = TextEditingController();
+
+  bool isLoading = false;
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  void _showSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    emailController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +55,6 @@ class Signup extends StatelessWidget {
               children: [
                 const SizedBox(height: 20),
 
-                // mfu logo
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Image.asset('assets/mfu_logo.png', height: 90),
@@ -26,15 +62,12 @@ class Signup extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                // bus
                 Center(child: Image.asset('assets/bus.png', height: 120)),
 
                 const SizedBox(height: 40),
 
-                //Username
                 const Text("Username"),
 
-                //  username button
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -47,6 +80,7 @@ class Signup extends StatelessWidget {
                     ],
                   ),
                   child: TextField(
+                    controller: usernameController,
                     decoration: InputDecoration(
                       hintText: "Enter your username",
                       prefixIcon: Icon(Icons.account_box),
@@ -65,10 +99,8 @@ class Signup extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                //email 
                 const Text("Email"),
 
-                // Email button
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -81,6 +113,7 @@ class Signup extends StatelessWidget {
                     ],
                   ),
                   child: TextField(
+                    controller: emailController,
                     decoration: InputDecoration(
                       hintText: "Enter your email",
                       prefixIcon: Icon(Icons.email),
@@ -99,11 +132,8 @@ class Signup extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
-                //password 
                 const Text("Password"),
-                // confirm password 
-                
-                // button
+
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
@@ -116,6 +146,8 @@ class Signup extends StatelessWidget {
                     ],
                   ),
                   child: TextField(
+                    controller: passwordController,
+                    obscureText: true,
                     decoration: InputDecoration(
                       hintText: "Enter your password",
                       prefixIcon: Icon(Icons.key),
@@ -134,7 +166,6 @@ class Signup extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                 //  Sign up button
                 Center(
                   child: SizedBox(
                     width: 200,
@@ -148,26 +179,68 @@ class Signup extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Signin02(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        "Sign up",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              String username =
+                                  usernameController.text.trim();
+                              String password =
+                                  passwordController.text.trim();
+                              String email = emailController.text.trim();
+
+                              if (username.isEmpty ||
+                                  password.isEmpty ||
+                                  email.isEmpty) {
+                                _showError("Please fill all fields");
+                                return;
+                              }
+
+                              if (password.length < 8) {
+                                _showError(
+                                    "Password must be at least 8 characters");
+                                return;
+                              }
+
+                              if (!email.contains("@")) {
+                                _showError("Invalid email format");
+                                return;
+                              }
+
+                              setState(() => isLoading = true);
+
+                              String? error = await ApiService.register(
+                                username,
+                                password,
+                                email,
+                              );
+
+                              setState(() => isLoading = false);
+
+                              if (error == null) {
+                                _showSuccess("Signup success");
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const Signin02()),
+                                );
+                              } else {
+                                _showError(error);
+                              }
+                            },
+                      child: isLoading
+                          ? const CircularProgressIndicator(
+                              color: Colors.white)
+                          : const Text(
+                              "Sign up",
+                              style: TextStyle(color: Colors.white),
+                            ),
                     ),
                   ),
                 ),
 
-
                 const SizedBox(height: 20),
 
-               // Sign in
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

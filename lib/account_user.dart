@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shuttle_bus_fronted/edit_account_user.dart';
 import 'package:shuttle_bus_fronted/signin01.dart';
+import 'package:shuttle_bus_fronted/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountUser extends StatefulWidget {
   const AccountUser({super.key});
@@ -12,18 +14,69 @@ class AccountUser extends StatefulWidget {
 class _AccountUserState extends State<AccountUser> {
   int currentIndex = 2;
 
+  String username = "";
+  String email = "";
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  Future<void> loadUser() async {
+    // 🔥 เช็ค token ก่อน
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString("token");
+
+    if (token == null) {
+      _logout();
+      return;
+    }
+
+    try {
+      final data = await ApiService.getLatest();
+
+      print("LATEST DATA: $data");
+
+      setState(() {
+        username = data["username"] ?? "";
+        email = data["email"] ?? "";
+      });
+    } catch (e) {
+      print("LOAD USER ERROR: $e");
+
+      // ❌ ไม่ logout แล้ว
+      // แค่กัน UI พัง
+      setState(() {
+        username = "";
+        email = "";
+      });
+    }
+  }
+
+  // 🔥 logout function (เหมือนเดิม)
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove("token");
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const Signin01()),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xffffffff),
-
       body: Stack(
         children: [
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Profile 
+                // Profile
                 Stack(
                   alignment: Alignment.center,
                   children: [
@@ -55,22 +108,23 @@ class _AccountUserState extends State<AccountUser> {
                             ),
                           ],
                         ),
-
-                        // Edit icon
                         child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            await Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const EditProfilePage()
+                              MaterialPageRoute(
+                                builder: (context) => const EditProfilePage(),
                               ),
                             );
+
+                            loadUser(); // 🔥 refresh
                           },
-                        child: const Icon(
-                          Icons.edit,
-                          size: 20,
-                          color: Colors.black,
+                          child: const Icon(
+                            Icons.edit,
+                            size: 20,
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
                       ),
                     ),
                   ],
@@ -78,52 +132,50 @@ class _AccountUserState extends State<AccountUser> {
 
                 const SizedBox(height: 20),
 
-                //Username
-                const Text(
-                  "Time",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                // Username
+                Text(
+                  username.isEmpty ? "Loading..." : username,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
 
                 const SizedBox(height: 5),
 
                 // Email
-                const Text(
-                  "6631501013@lamduan.mfu.ac.th",
-                  style: TextStyle(color: Colors.grey),
+                Text(
+                  email.isEmpty ? "" : email,
+                  style: const TextStyle(color: Colors.grey),
                 ),
 
                 const SizedBox(height: 40),
 
                 // Sign out button
                 SizedBox(
-                width: 200,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    elevation: 5,
-                    shadowColor: Colors.black.withOpacity(0.1),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  width: 200,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      elevation: 5,
+                      shadowColor: Colors.black.withOpacity(0.1),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: _logout,
+                    child: const Text(
+                      "Sign out",
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const Signin01()),
-                    );
-                  },
-                  child: const Text(
-                    "Sign out",
-                    style: TextStyle(color: Colors.white),
-                  ),
                 ),
-              ),
               ],
             ),
           ),
 
-          // 🔹 Menu bar
+          // Menu bar (เหมือนเดิม 100%)
           Positioned(
             bottom: 20,
             left: 70,
@@ -143,7 +195,6 @@ class _AccountUserState extends State<AccountUser> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  // Menu Home
                   GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
@@ -160,11 +211,7 @@ class _AccountUserState extends State<AccountUser> {
                       ],
                     ),
                   ),
-
-                  // Menu Bus
                   Image.asset('assets/bus.png', height: 50),
-
-                  // Menu Profile
                   Transform.translate(
                     offset: const Offset(0, -20),
                     child: Column(
