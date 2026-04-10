@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "http://172.25.19.229:5000"; //ip คอมเรา
+  static const String baseUrl = "http://192.168.110.142:5000"; //ip คอมเรา
 
   // ===== COMMON FUNCTION =====
   static dynamic _handleResponse(http.Response res) {
