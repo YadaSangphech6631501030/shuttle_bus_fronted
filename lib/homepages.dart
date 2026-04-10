@@ -16,44 +16,143 @@ class Homepages extends StatefulWidget {
 class _HomepagesState extends State<Homepages> {
   OverlayEntry? overlayEntry;
 
-  // 🚍 รถ 4 คัน
-  List<int> busIndexes = [0, 30, 60, 90];
+  int currentIndex = 0;
   bool isMoving = true;
+
+  List<int> busIndexes = [0, 30, 60, 90];
   List<LatLng> route = [];
+
+  Timer? moveTimer;
+  Timer? toggleTimer;
+
+  //Station
+  final List<Map<String, dynamic>> line1 = [
+    {
+      "name": "Station 01 (จุดหอพักลำดวน 2)",
+      "lat": 20.05896500699539,
+      "lng": 99.8988796884786,
+    },
+    {
+      "name": "Station 02(จุดพักลำดวน 7)",
+      "lat": 20.057081156842653,
+      "lng": 99.89702395554524,
+    },
+    {
+      "name": "Station 03 (จุด หอพักจีน ขาเข้า)",
+      "lat": 20.050870176213458,
+      "lng": 99.8913375758622,
+    },
+    {
+      "name": "Station 04 (จุด ศูนย์จีน ขาเข้า)",
+      "lat": 20.048895164537097,
+      "lng": 99.89132709650245,
+    },
+    {
+      "name": "Station 05 (จุด ลานจอดหอพัก F)",
+      "lat": 20.048215214947664,
+      "lng": 99.89322591378016,
+    },
+    {
+      "name": "Station 06 (จุด อาคารโรงอาหาร D1)",
+      "lat": 20.047237196545165,
+      "lng": 99.89329478216467,
+    },
+    {
+      "name": "Station 07 (จุด สระน้ำวงรี ลานดาว)",
+      "lat": 20.045606104291842,
+      "lng": 99.89153621441135,
+    },
+    {
+      "name": "Station 08 (จุด อาคารโรงอาหาร E2 ขาเข้า)",
+      "lat": 20.04399637202456,
+      "lng": 99.893402801156,
+    },
+    {
+      "name": "Station 09 (จุด อาคารเรียนรวม C3 C2 และ หอประชุมสมเด็จย่า C4)",
+      "lat": 20.043895277649657,
+      "lng": 99.89521575716422,
+    },
+    {
+      "name": "Station 10 (จุด อาคารเรียนรวม C5 )",
+      "lat": 20.043346224233225,
+      "lng": 99.89513551300819,
+    },
+    {
+      "name": "Station 11 (จุด อาคาร m - square)",
+      "lat": 20.045780781087203,
+      "lng": 99.89135359185909,
+    },
+    {
+      "name": "Station 12 (จุด ศูนย์จีน ขาออก)",
+      "lat": 20.048986374924546,
+      "lng": 99.89118215098704,
+    },
+    {
+      "name": "Station 13 (จุด หอพักจีน ขาออก)",
+      "lat": 20.05134933875068,
+      "lng": 99.8914018941547,
+    },
+    {
+      "name": "Station 14 (จุด สนามกีฬากลาง)",
+      "lat": 20.054763275437402,
+      "lng": 99.89454537873918,
+    },
+    {
+      "name": "Station 15 (จุด หอพักลำดวน 7)",
+      "lat": 20.056724686542545,
+      "lng": 99.89712571588397,
+    },
+    {
+      "name": "Station 16 (จุด ครัวลำดวน)",
+      "lat": 20.058276924103307,
+      "lng": 99.89811278167763,
+    },
+  ];
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      startBusAnimation();
-    });
+    final raw = line1.map((e) => LatLng(e["lat"], e["lng"])).toList();
+
+    route = catmullRomSpline(raw);
+
+    startBusAnimation();
   }
 
-  void startBusAnimation() {
-    // เคลื่อนที่
-    Timer.periodic(const Duration(milliseconds: 800), (timer) {
-      if (!mounted) return;
+  @override
+  void dispose() {
+    moveTimer?.cancel();
+    toggleTimer?.cancel();
+    overlayEntry?.remove();
+    super.dispose();
+  }
 
-      if (isMoving && route.isNotEmpty) {
-        setState(() {
-          for (int i = 0; i < busIndexes.length; i++) {
-            busIndexes[i] = (busIndexes[i] + 1) % route.length;
-          }
-        });
-      }
+  //Bus animation
+  void startBusAnimation() {
+    moveTimer = Timer.periodic(const Duration(milliseconds: 800), (_) {
+      if (!mounted || route.isEmpty || !isMoving) return;
+
+      setState(() {
+        for (int i = 0; i < busIndexes.length; i++) {
+          busIndexes[i] = (busIndexes[i] + 1) % route.length;
+        }
+      });
     });
 
-    // หยุด/วิ่ง ทุก 5 วิ
-    Timer.periodic(const Duration(seconds: 2), (timer) {
+    toggleTimer = Timer.periodic(const Duration(seconds: 5), (_) {
       if (!mounted) return;
+
       setState(() {
         isMoving = !isMoving;
       });
     });
   }
 
+  //Menu for help
   void showHelpPopup() {
+    overlayEntry?.remove();
+
     overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
@@ -67,14 +166,14 @@ class _HomepagesState extends State<Homepages> {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                width: 300,
+                width: 280,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -86,8 +185,8 @@ class _HomepagesState extends State<Homepages> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        "Email us\nsupportit@gmail.com",
-                        style: GoogleFonts.kanit(fontSize: 18),
+                        "supportit@gmail.com",
+                        style: GoogleFonts.kanit(fontSize: 16),
                       ),
                     ),
                   ],
@@ -102,9 +201,9 @@ class _HomepagesState extends State<Homepages> {
     Overlay.of(context).insert(overlayEntry!);
   }
 
-  /// 🔥 เส้นโค้งลื่น
-  List<LatLng> catmullRomSpline(List<LatLng> points, {int segments = 10}) {
+  List<LatLng> catmullRomSpline(List<LatLng> points, {int segments = 8}) {
     List<LatLng> result = [];
+
     for (int i = 0; i < points.length - 1; i++) {
       LatLng p0 = i > 0 ? points[i - 1] : points[i];
       LatLng p1 = points[i];
@@ -116,7 +215,8 @@ class _HomepagesState extends State<Homepages> {
         double tt = t * t;
         double ttt = tt * t;
 
-        double lat = 0.5 *
+        double lat =
+            0.5 *
             ((2 * p1.latitude) +
                 (-p0.latitude + p2.latitude) * t +
                 (2 * p0.latitude -
@@ -130,7 +230,8 @@ class _HomepagesState extends State<Homepages> {
                         p3.latitude) *
                     ttt);
 
-        double lng = 0.5 *
+        double lng =
+            0.5 *
             ((2 * p1.longitude) +
                 (-p0.longitude + p2.longitude) * t +
                 (2 * p0.longitude -
@@ -147,92 +248,170 @@ class _HomepagesState extends State<Homepages> {
         result.add(LatLng(lat, lng));
       }
     }
+
     result.add(points.last);
     return result;
   }
 
-  int currentIndex = 0;
-
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> line1 = [
-      {"name": "Station 01", "lat": 20.05896, "lng": 99.89887},
-      {"name": "Station 02", "lat": 20.05708, "lng": 99.89702},
-      {"name": "Station 03", "lat": 20.05087, "lng": 99.89133},
-      {"name": "Station 04", "lat": 20.04889, "lng": 99.89132},
-      {"name": "Station 05", "lat": 20.04821, "lng": 99.89322},
-      {"name": "Station 06", "lat": 20.04723, "lng": 99.89329},
-      {"name": "Station 07", "lat": 20.04560, "lng": 99.89153},
-      {"name": "Station 08", "lat": 20.04399, "lng": 99.89340},
-      {"name": "Station 09", "lat": 20.04389, "lng": 99.89521},
-      {"name": "Station 10", "lat": 20.04334, "lng": 99.89513},
-      {"name": "Station 11", "lat": 20.04578, "lng": 99.89135},
-      {"name": "Station 12", "lat": 20.04898, "lng": 99.89118},
-      {"name": "Station 13", "lat": 20.05134, "lng": 99.89140},
-      {"name": "Station 14", "lat": 20.05476, "lng": 99.89454},
-      {"name": "Station 15", "lat": 20.05672, "lng": 99.89712},
-      {"name": "Station 16", "lat": 20.05827, "lng": 99.89811},
-    ];
-
-    final rawPoints =
-        line1.map((e) => LatLng(e["lat"], e["lng"])).toList();
-
-    final smoothPoints = catmullRomSpline(rawPoints);
-
-    // 🔥 set route ให้รถวิ่ง
-    route = smoothPoints;
-
     return Scaffold(
       body: Stack(
         children: [
+          // Map
           FlutterMap(
             options: MapOptions(
               initialCenter: LatLng(20.045, 99.894),
-              initialZoom: 16,
+              initialZoom: 15.8,
             ),
             children: [
               TileLayer(
                 urlTemplate:
                     "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-                subdomains: ['a', 'b', 'c', 'd'],
+                subdomains: const ['a', 'b', 'c', 'd'],
               ),
 
-              /// 🟢 เส้นทาง
+              // route line
               PolylineLayer(
                 polylines: [
-                  Polyline(
-                    points: smoothPoints,
-                    color: Colors.green,
-                    strokeWidth: 4,
-                  ),
+                  Polyline(points: route, color: Colors.green, strokeWidth: 4),
                 ],
               ),
 
-              /// 🔴 ป้าย
+              // stations
               MarkerLayer(
-                markers: line1.map((station) {
+                markers: line1.map((s) {
                   return Marker(
-                    point: LatLng(station["lat"], station["lng"]),
-                    width: 60,
-                    height: 60,
-                    child: const Icon(Icons.location_on,
-                        color: Colors.red, size: 35),
+                    point: LatLng(s["lat"], s["lng"]),
+                    width: 50,
+                    height: 50,
+                    child: const Icon(
+                      Icons.location_on,
+                      color: Colors.red,
+                      size: 35,
+                    ),
                   );
                 }).toList(),
               ),
 
-              /// 🚍 รถวิ่ง
+              // Markers for buses
               MarkerLayer(
-                markers: busIndexes.map((index) {
+                markers: busIndexes.map((i) {
                   return Marker(
-                    point: route[index],
-                    width: 50,
-                    height: 50,
+                    point: route[i],
+                    width: 45,
+                    height: 45,
                     child: Image.asset('assets/bus.png'),
                   );
                 }).toList(),
               ),
             ],
+          ),
+
+          //Tabbar
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 100,
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top,
+                left: 16,
+                right: 16,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.help_outline),
+                    onPressed: showHelpPopup,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BusStationPage(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          //Button Tabbar
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(height: 80, color: Colors.white),
+          ),
+
+          Positioned(
+            bottom: 20,
+            left: 70,
+            right: 70,
+            child: Container(
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(40),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => currentIndex = 0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.home, color: Colors.white),
+                        const SizedBox(height: 4),
+                        const Text(
+                          "Home",
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Image.asset('assets/bus.png', height: 40),
+
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AccountUser()),
+                      );
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.person, color: Colors.white),
+                        const SizedBox(height: 4),
+                        const Text(
+                          "Account",
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
