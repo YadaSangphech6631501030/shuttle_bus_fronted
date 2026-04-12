@@ -41,11 +41,23 @@ class BusStationPage extends StatelessWidget {
                 const LineSection(
                   title: "สาย 1",
                   stations: [
-                    "01 จุดหอพักลาน 2",
-                    "02 จุดอาคาร F",
-                    "03 จุดอาคาร M-square",
-                    "04 จุดศูนย์จีน ขาออก",
-                    "05 จุดทางเข้าสระว่ายน้ำ",
+                    "01 จุดหอพักลำดวน 2",
+                    "02 จุดพักลำดวน 7",
+                    "03 จุด หอพักจีน ขาเข้า",
+                    "04 จุด ศูนย์จีน ขาเข้า",
+                    "05 จุด ลานจอดหอพัก F",
+                    "06 จุด อาคารโรงอาหาร D1",
+                    "07 จุด สระน้ำวงรี ลานดาว",
+                    "08 จุด อาคารโรงอาหาร E2 ขาเข้า",
+                    "09 จุด อาคารเรียนรวม C3 C2 และ หอประชุมสมเด็จย่า C4",
+                    "10 จุด อาคารเรียนรวม C5",
+                    "11 จุด อาคาร m - square",
+                    "12 จุด ศูนย์จีน ขาออก",
+                    "13 จุด หอพักจีน ขาออก",
+                    "14 จุด สนามกีฬากลาง",
+                    "15 จุด หอพักลำดวน 7",
+                    "16 จุด ครัวลำดวน"
+
                   ],
                 ),
 
@@ -55,11 +67,21 @@ class BusStationPage extends StatelessWidget {
                 const LineSection(
                   title: "สาย 2 (โรงพยาบาลแม่ฟ้าหลวง)",
                   stations: [
-                    "01 จุดหอพักลาน 2",
-                    "02 จุดอาคาร F",
-                    "03 จุดอาคาร M-square",
-                    "04 จุดศูนย์จีน ขาออก",
-                    "05 จุดทางเข้าสระว่ายน้ำ",
+                   "01 จุดหอพักลำดวน 2",
+                    "02 จุดพักลำดวน 7",
+                    "03 จุด หอพักจีน ขาเข้า",
+                    "04 จุด ศูนย์จีน ขาเข้า",
+                    "05 จุด ลานจอดหอพัก F",
+                    "06 จุด อาคารโรงอาหาร D1",
+                    "07 จุด สระน้ำวงรี ลานดาว",
+                    "08 จุด อาคารโรงอาหาร E2 ขาเข้า",
+                    "09 จุด โรงพยาบาลแม่ฟ้าหลวง",
+                    "10 จุด อาคาร m - square",
+                    "11 จุด ศูนย์จีน ขาออก",
+                    "12 จุด หอพักจีน ขาออก",
+                    "13 จุด สนามกีฬากลาง",
+                    "14 จุด หอพักลำดวน 7",
+                    "15 จุด ครัวลำดวน"
                   ],
                 ),
               ],
@@ -182,37 +204,39 @@ class _LineSectionState extends State<LineSection> {
                     BoxShadow(color: Colors.black12, blurRadius: 4),
                   ],
                 ),
-                child: Column(
-                  children: filtered.isEmpty
-                      ? [
-                          const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Text("ไม่พบสถานี"),
-                          ),
-                        ]
-                      : filtered.map((station) {
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Text(station),
-                                trailing: const Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 14,
-                                ),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => BusTimePage(),
-                                    ),
-                                  );
-                                },
-                              ),
-                              const Divider(height: 1),
-                            ],
-                          );
-                        }).toList(),
+               child: Column(
+  children: filtered.isEmpty
+      ? [
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text("ไม่พบสถานี"),
+          ),
+        ]
+      : filtered.map((station) {
+          return Column(
+            children: [
+              ListTile(
+                title: Text(station),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 14,
                 ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BusTimePage(
+                        stationName: station,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const Divider(height: 1),
+            ],
+          );
+        }).toList(),
+),
               ),
             ],
           ),

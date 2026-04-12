@@ -14,6 +14,9 @@ class Homepages extends StatefulWidget {
 }
 
 class _HomepagesState extends State<Homepages> {
+
+   OverlayEntry? overlayEntry;
+
   //bus animation
   List<int> busIndexes = [0, 40, 80, 120];
   bool isMoving = true;
@@ -103,6 +106,7 @@ class _HomepagesState extends State<Homepages> {
 
   @override
   Widget build(BuildContext context) {
+    //line 1
     final List<Map<String, dynamic>> line1 = [
       {
         "name": "Station 01 (จุดหอพักลำดวน 2)",
@@ -186,31 +190,140 @@ class _HomepagesState extends State<Homepages> {
       },
     ];
 
+      //line 2
+     final List<Map<String, dynamic>> line2 = [
+      {
+        "name": "Station 01 (จุดหอพักลำดวน 2)",
+        "lat": 20.05896500699539,
+        "lng": 99.8988796884786,
+      },
+      {
+        "name": "Station 02(จุดพักลำดวน 7)",
+        "lat": 20.057081156842653,
+        "lng": 99.89702395554524,
+      },
+      {
+        "name": "Station 03 (จุด หอพักจีน ขาเข้า)",
+        "lat": 20.050870176213458,
+        "lng": 99.8913375758622,
+      },
+      {
+        "name": "Station 04 (จุด ศูนย์จีน ขาเข้า)",
+        "lat": 20.048895164537097,
+        "lng": 99.89132709650245,
+      },
+      {
+        "name": "Station 05 (จุด ลานจอดหอพัก F)",
+        "lat": 20.048215214947664,
+        "lng": 99.89322591378016,
+      },
+      {
+        "name": "Station 06 (จุด อาคารโรงอาหาร D1)",
+        "lat": 20.047237196545165,
+        "lng": 99.89329478216467,
+      },
+      {
+        "name": "Station 07 (จุด สระน้ำวงรี ลานดาว)",
+        "lat": 20.045606104291842,
+        "lng": 99.89153621441135,
+      },
+      {
+        "name": "Station 08 (จุด อาคารโรงอาหาร E2 ขาเข้า)",
+        "lat": 20.04399637202456,
+        "lng": 99.893402801156,
+      },
+      {
+        "name": "Station 09 (จุด โรงพยาบาลแม่ฟ้าหลวง)",
+        "lat": 20.041278409327774,
+        "lng": 99.89430864493072,
+      },
+      {
+        "name": "Station 10 (จุด อาคาร m - square)",
+        "lat": 20.045780781087203,
+        "lng": 99.89135359185909,
+      },
+      {
+        "name": "Station 11 (จุด ศูนย์จีน ขาออก)",
+        "lat": 20.048986374924546,
+        "lng": 99.89118215098704,
+      },
+      {
+        "name": "Station 12 (จุด หอพักจีน ขาออก)",
+        "lat": 20.05134933875068,
+        "lng": 99.8914018941547,
+      },
+      {
+        "name": "Station 13 (จุด สนามกีฬากลาง)",
+        "lat": 20.054763275437402,
+        "lng": 99.89454537873918,
+      },
+      {
+        "name": "Station 14 (จุด หอพักลำดวน 7)",
+        "lat": 20.056724686542545,
+        "lng": 99.89712571588397,
+      },
+      {
+        "name": "Station 15 (จุด ครัวลำดวน)",
+        "lat": 20.058276924103307,
+        "lng": 99.89811278167763,
+      },
+    ];
+
     final rawPoints = line1.map((e) => LatLng(e["lat"], e["lng"])).toList();
 
     final smoothPoints = catmullRomSpline(rawPoints);
 
     route = smoothPoints;
+
+    //Menu support email
     void showHelpPopup() {
-      showDialog(
-        context: context,
-        barrierColor: Colors.black54,
-        builder: (_) => Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+    overlayEntry = OverlayEntry(
+      builder: (context) => Stack(
+        children: [
+          GestureDetector(
+            onTap: () => overlayEntry?.remove(),
+            child: Container(color: Colors.transparent),
           ),
-          child: const Padding(
-            padding: EdgeInsets.all(20),
-            child: Text(
-              "Email : supportit@gmail.com",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Colors.black),
+          Positioned(
+            top: 100,
+            left: 20,
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                width: 300,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.email_outlined),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        "Email us\nsupportit@gmail.com",
+                        style: GoogleFonts.kanit(fontSize: 18),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      );
-    }
+        ],
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry!);
+  }
 
     return Scaffold(
       body: Stack(
@@ -254,7 +367,7 @@ class _HomepagesState extends State<Homepages> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             content: Text(
-                              "${station["name"]}\nจำนวนผู้โดยสาร: 0 คน",
+                              "${station["name"]}\nจำนวนผู้โดยสาร: 0 คน\nรถจะมาถึงในอีก: 5 นาที",
                               style: GoogleFonts.kanit(
                                 fontSize: 18,
                                 color: Colors.black,

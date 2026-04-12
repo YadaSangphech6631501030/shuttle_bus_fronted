@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class BusTimePage extends StatelessWidget {
-  const BusTimePage({super.key});
+  final String stationName;
+
+  const BusTimePage({
+    super.key,
+    required this.stationName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +19,7 @@ class BusTimePage extends StatelessWidget {
             children: [
               const SizedBox(height: 10),
 
+              // Header
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -22,23 +28,26 @@ class BusTimePage extends StatelessWidget {
                   color: Colors.black,
                   borderRadius: BorderRadius.circular(18),
                 ),
-                // icons back
                 child: Row(
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        child: const Icon(Icons.arrow_back,
-                            color: Colors.white),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(width: 10),
-                    const Text(
-                      "01 จุดหอพักลาน 2",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
+
+                    // 🔥 dynamic station
+                    Expanded(
+                      child: Text(
+                        stationName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -47,7 +56,7 @@ class BusTimePage extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-             // Bus times list
+              // Table
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
@@ -56,7 +65,7 @@ class BusTimePage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: const [
                     BoxShadow(
-                     color: Colors.black12,
+                      color: Colors.black12,
                       blurRadius: 4,
                       offset: Offset(0, 2),
                     )
@@ -64,23 +73,19 @@ class BusTimePage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    
                     Row(
                       children: [
-                        Expanded(child: buildHeader("เลขรถโดยสาร")),
-                        const SizedBox(width: 6),
-                        Expanded(child: buildHeader("จะถึงสถานีใน")),
+                        Expanded(child: _header("เลขรถ")),
+                        const SizedBox(width: 8),
+                        Expanded(child: _header("เวลาถึง")),
                       ],
                     ),
-
                     const SizedBox(height: 12),
 
-                    // Body
-                    buildRow("01", "กำลังเข้าสู่สถานี"),
-                    buildRow("02", "3 นาที 0 วินาที"),
-                    buildRow("03", "8 นาที 5 วินาที"),
-                    buildRow("04", "15 นาที 5 วินาที"),
-                    buildRow("05", "20 นาที 0 วินาที"),
+                    _row("01", "กำลังเข้าสถานี"),
+                    _row("02", "3 นาที"),
+                    _row("03", "8 นาที"),
+                    _row("04", "15 นาที"),
                   ],
                 ),
               ),
@@ -91,8 +96,7 @@ class BusTimePage extends StatelessWidget {
     );
   }
 
-  // Header
-  Widget buildHeader(String text) {
+  Widget _header(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -104,27 +108,18 @@ class BusTimePage extends StatelessWidget {
     );
   }
 
-  
-  Widget buildRow(String busNo, String time) {
+  Widget _row(String bus, String time) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center, 
         children: [
           SizedBox(
             width: 60,
-            child: Text(
-              busNo,
-              textAlign: TextAlign.center,
-            ),
+            child: Text(bus, textAlign: TextAlign.center),
           ),
-          const SizedBox(width: 70),
-          SizedBox(
-            width: 150,
-            child: Text(
-              time,
-              textAlign: TextAlign.center,
-            ),
+          const SizedBox(width: 80),
+          Expanded(
+            child: Text(time, textAlign: TextAlign.center),
           ),
         ],
       ),

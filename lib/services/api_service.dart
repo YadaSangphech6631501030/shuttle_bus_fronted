@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.110.142:5000"; //ip คอมเรา
+  static const String baseUrl = "http://192.168.1.172:5001"; //ip คอมเรา
 
   // ===== COMMON FUNCTION =====
   static dynamic _handleResponse(http.Response res) {
@@ -17,35 +17,42 @@ class ApiService {
     }
   }
 
-  // 🔥 REGISTER
-  static Future<String?> register(
-    String username,
-    String password,
-    String email,
-  ) async {
-    try {
-      final res = await http.post(
-        Uri.parse("$baseUrl/auth/register"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "username": username,
-          "password": password,
-          "email": email,
-        }),
-      );
+// Register
+static Future<String?> register(
+  String username,
+  String password,
+  String email,
+) async {
+  print("REGISTER INPUT:");
+  print("username: $username");
+  print("password: $password");
+  print("email: $email");
 
-      final data = _handleResponse(res);
+  try {
+    final res = await http.post(
+      Uri.parse("$baseUrl/auth/register"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "username": username,
+        "password": password,
+        "email": email,
+      }),
+    );
 
-      if (res.statusCode == 200) {
-        return null;
-      } else {
-        return data["error"] ?? "Register failed";
-      }
-    } catch (e) {
-      return "Network error";
+    print("STATUS: ${res.statusCode}");
+    print("BODY: ${res.body}");
+
+    final data = _handleResponse(res);
+
+    if (res.statusCode == 200) {
+      return null;
+    } else {
+      return data["error"] ?? "Register failed";
     }
+  } catch (e) {
+    return "Network error";
   }
-
+}
   // 🔥 LOGIN
   static Future<String?> login(String username, String password) async {
     try {
