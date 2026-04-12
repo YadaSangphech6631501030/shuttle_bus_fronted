@@ -16,96 +16,11 @@ class Homepages extends StatefulWidget {
 class _HomepagesState extends State<Homepages> {
 
    OverlayEntry? overlayEntry;
+   int currentIndex = 0;
 
-  //bus animation
-  List<int> busIndexes = [0, 40, 80, 120];
-  bool isMoving = true;
-  List<LatLng> route = [];
+   //line1/2
+   String selectedLine = "line1";
 
-  int currentIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      startBusAnimation();
-    });
-  }
-
-  void startBusAnimation() {
-    Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      if (!mounted) return;
-
-      if (isMoving && route.isNotEmpty) {
-        setState(() {
-          for (int i = 0; i < busIndexes.length; i++) {
-            busIndexes[i] = (busIndexes[i] + 1) % route.length;
-          }
-        });
-      }
-    });
-
-    Timer.periodic(const Duration(seconds: 2), (timer) {
-      if (!mounted) return;
-      setState(() {
-        isMoving = !isMoving;
-      });
-    });
-  }
-
-  List<LatLng> catmullRomSpline(List<LatLng> points, {int segments = 10}) {
-    List<LatLng> result = [];
-    for (int i = 0; i < points.length - 1; i++) {
-      LatLng p0 = i > 0 ? points[i - 1] : points[i];
-      LatLng p1 = points[i];
-      LatLng p2 = points[i + 1];
-      LatLng p3 = i < points.length - 2 ? points[i + 2] : points[i + 1];
-
-      for (int j = 0; j <= segments; j++) {
-        double t = j / segments;
-        double tt = t * t;
-        double ttt = tt * t;
-
-        double lat =
-            0.5 *
-            ((2 * p1.latitude) +
-                (-p0.latitude + p2.latitude) * t +
-                (2 * p0.latitude -
-                        5 * p1.latitude +
-                        4 * p2.latitude -
-                        p3.latitude) *
-                    tt +
-                (-p0.latitude +
-                        3 * p1.latitude -
-                        3 * p2.latitude +
-                        p3.latitude) *
-                    ttt);
-
-        double lng =
-            0.5 *
-            ((2 * p1.longitude) +
-                (-p0.longitude + p2.longitude) * t +
-                (2 * p0.longitude -
-                        5 * p1.longitude +
-                        4 * p2.longitude -
-                        p3.longitude) *
-                    tt +
-                (-p0.longitude +
-                        3 * p1.longitude -
-                        3 * p2.longitude +
-                        p3.longitude) *
-                    ttt);
-
-        result.add(LatLng(lat, lng));
-      }
-    }
-    result.add(points.last);
-    return result;
-  }
-
-  @override
-  Widget build(BuildContext context) {
     //line 1
     final List<Map<String, dynamic>> line1 = [
       {
@@ -114,7 +29,7 @@ class _HomepagesState extends State<Homepages> {
         "lng": 99.8988796884786,
       },
       {
-        "name": "Station 02(จุดพักลำดวน 7)",
+        "name": "Station 02(จุดพักลำดวน 7 ขาเข้า)",
         "lat": 20.057081156842653,
         "lng": 99.89702395554524,
       },
@@ -179,7 +94,7 @@ class _HomepagesState extends State<Homepages> {
         "lng": 99.89454537873918,
       },
       {
-        "name": "Station 15 (จุด หอพักลำดวน 7)",
+        "name": "Station 15 (จุด หอพักลำดวน 7 ขาออก)",
         "lat": 20.056724686542545,
         "lng": 99.89712571588397,
       },
@@ -198,7 +113,7 @@ class _HomepagesState extends State<Homepages> {
         "lng": 99.8988796884786,
       },
       {
-        "name": "Station 02(จุดพักลำดวน 7)",
+        "name": "Station 02(จุดพักลำดวน 7 ขาเข้า)",
         "lat": 20.057081156842653,
         "lng": 99.89702395554524,
       },
@@ -258,7 +173,7 @@ class _HomepagesState extends State<Homepages> {
         "lng": 99.89454537873918,
       },
       {
-        "name": "Station 14 (จุด หอพักลำดวน 7)",
+        "name": "Station 14 (จุด หอพักลำดวน 7 ขาออก)",
         "lat": 20.056724686542545,
         "lng": 99.89712571588397,
       },
@@ -269,13 +184,111 @@ class _HomepagesState extends State<Homepages> {
       },
     ];
 
-    final rawPoints = line1.map((e) => LatLng(e["lat"], e["lng"])).toList();
+      List<Map<String, dynamic>> getSelectedLine() {
+    return selectedLine == "line1" ? line1 : line2;
+  }
 
-    final smoothPoints = catmullRomSpline(rawPoints);
+ List<LatLng> route = [];
 
-    route = smoothPoints;
+  void updateRoute() {
+    final points = getSelectedLine()
+        .map((e) => LatLng(
+              (e["lat"] as double),
+              (e["lng"] as double),
+            ))
+        .toList();
 
-    //Menu support email
+    setState(() {
+      route = catmullRomSpline(points);
+    });
+  }
+
+
+  //bus animation
+   List<int> busIndexes = [0, 10, 20, 30];
+  bool isMoving = true;
+
+  @override
+  void initState() {
+    super.initState();
+    updateRoute();
+    startBusAnimation();
+  }
+
+  void startBusAnimation() {
+    Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (!mounted) return;
+
+      if (isMoving && route.isNotEmpty) {
+        setState(() {
+          for (int i = 0; i < busIndexes.length; i++) {
+            busIndexes[i] = (busIndexes[i] + 1) % route.length;
+          }
+        });
+      }
+    });
+
+    Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (!mounted) return;
+      setState(() {
+        isMoving = !isMoving;
+      });
+    });
+  }
+
+
+
+  List<LatLng> catmullRomSpline(List<LatLng> points, {int segments = 10}) {
+    List<LatLng> result = [];
+    for (int i = 0; i < points.length - 1; i++) {
+      LatLng p0 = i > 0 ? points[i - 1] : points[i];
+      LatLng p1 = points[i];
+      LatLng p2 = points[i + 1];
+      LatLng p3 = i < points.length - 2 ? points[i + 2] : points[i + 1];
+
+      for (int j = 0; j <= segments; j++) {
+        double t = j / segments;
+        double tt = t * t;
+        double ttt = tt * t;
+
+        double lat =
+            0.5 *
+            ((2 * p1.latitude) +
+                (-p0.latitude + p2.latitude) * t +
+                (2 * p0.latitude -
+                        5 * p1.latitude +
+                        4 * p2.latitude -
+                        p3.latitude) *
+                    tt +
+                (-p0.latitude +
+                        3 * p1.latitude -
+                        3 * p2.latitude +
+                        p3.latitude) *
+                    ttt);
+
+        double lng =
+            0.5 *
+            ((2 * p1.longitude) +
+                (-p0.longitude + p2.longitude) * t +
+                (2 * p0.longitude -
+                        5 * p1.longitude +
+                        4 * p2.longitude -
+                        p3.longitude) *
+                    tt +
+                (-p0.longitude +
+                        3 * p1.longitude -
+                        3 * p2.longitude +
+                        p3.longitude) *
+                    ttt);
+
+        result.add(LatLng(lat, lng));
+      }
+    }
+    result.add(points.last);
+    return result;
+  }
+
+  // Support-it Email
     void showHelpPopup() {
     overlayEntry = OverlayEntry(
       builder: (context) => Stack(
@@ -325,11 +338,14 @@ class _HomepagesState extends State<Homepages> {
     Overlay.of(context).insert(overlayEntry!);
   }
 
+
+    @override
+    Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
           FlutterMap(
-            options: MapOptions(
+            options: const MapOptions(
               initialCenter: LatLng(20.045, 99.894),
               initialZoom: 16,
             ),
@@ -340,20 +356,23 @@ class _HomepagesState extends State<Homepages> {
                 subdomains: ['a', 'b', 'c', 'd'],
               ),
 
+              // Route Line
               PolylineLayer(
-                polylines: [
-                  Polyline(
-                    points: smoothPoints,
-                    color: Colors.green,
-                    strokeWidth: 4,
-                  ),
-                ],
-              ),
-
+              polylines: [
+                 Polyline(
+                   points: route,
+                   color: selectedLine == "line1"
+                    ? Colors.black    // line1
+                    : Colors.green,   // line 2
+               strokeWidth: 4,
+         ),
+      ],
+),
+              // Stations Markers
               MarkerLayer(
-                markers: line1.map((station) {
+                markers: getSelectedLine().map((station) {
                   return Marker(
-                    point: LatLng(station["lat"], station["lng"]),
+                   point: LatLng(station["lat"], station["lng"]),
                     width: 60,
                     height: 60,
                     alignment: Alignment.bottomCenter,
@@ -371,12 +390,12 @@ class _HomepagesState extends State<Homepages> {
                               style: GoogleFonts.kanit(
                                 fontSize: 18,
                                 color: Colors.black,
-                              ),
+                                ),
                             ),
                           ),
                         );
                       },
-                      child: const Icon(
+                    child: const Icon(
                         Icons.location_on,
                         color: Colors.red,
                         size: 35,
@@ -386,11 +405,13 @@ class _HomepagesState extends State<Homepages> {
                 }).toList(),
               ),
 
-              /// Bus markers
+              // BUS
               MarkerLayer(
-                markers: busIndexes.map((index) {
+                markers: busIndexes.map((i) {
+                  if (route.isEmpty) return const Marker(point: LatLng(0, 0), child: SizedBox());
+
                   return Marker(
-                    point: route[index],
+                    point: route[i % route.length], 
                     width: 50,
                     height: 50,
                     child: Image.asset('assets/bus.png'),
@@ -399,6 +420,55 @@ class _HomepagesState extends State<Homepages> {
               ),
             ],
           ),
+
+          //Selected Line Button
+          Positioned(
+      top: 120,
+      left: 20,
+      child: Column(
+      children: [
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: selectedLine == "line1"
+              ? Colors.black
+              : Colors.white,
+          foregroundColor: selectedLine == "line1"
+              ? Colors.white
+              : Colors.black,
+          side: const BorderSide(color: Colors.white),
+        ),
+        onPressed: () {
+          setState(() {
+            selectedLine = "line1";
+          });
+          updateRoute();
+        },
+        child: const Text("Line 1"),
+      ),
+
+      const SizedBox(height: 10),
+
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: selectedLine == "line2"
+              ? Colors.green
+              : Colors.white,
+          foregroundColor: selectedLine == "line2"
+              ? Colors.white
+              : Colors.black,
+          side: const BorderSide(color: Colors.white),
+        ),
+        onPressed: () {
+          setState(() {
+            selectedLine = "line2";
+          });
+          updateRoute();
+        },
+        child: const Text("Line 2"),
+      ),
+    ],
+  ),
+),
 
           // App bar
           Positioned(
@@ -522,4 +592,5 @@ class _HomepagesState extends State<Homepages> {
       ),
     );
   }
+  
 }
