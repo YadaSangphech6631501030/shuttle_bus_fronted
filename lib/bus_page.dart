@@ -144,7 +144,7 @@ class _BusPageState extends State<BusPage> {
                               color: getStatusColor(bus["status"]),
                             ),
                           ),
-                          Text(bus["line"]),
+                          Text("Line : ${bus["line"]}"),
                           Text("Next Station : ${bus["station"]}"),
                           Text("Time Arrive : ${bus["minutes"]} min"),
                         ],
