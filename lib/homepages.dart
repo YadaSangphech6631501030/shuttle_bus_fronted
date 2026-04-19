@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -5,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shuttle_bus_fronted/bus_station.dart';
 import 'package:shuttle_bus_fronted/custom_bottom_bar.dart';
+import 'package:shuttle_bus_fronted/services/api_service.dart';
 
 class Homepages extends StatefulWidget {
   const Homepages({super.key});
@@ -20,6 +23,32 @@ class _HomepagesState extends State<Homepages> {
   String selectedLine = "line1";
   final MapController mapController = MapController();
   double currentZoom = 16;
+
+  List<dynamic> stationData = [];
+  Future<void> fetchStations() async {
+    try {
+      final data = await ApiService.getStations(selectedLine);
+      setState(() {
+        stationData = data;
+      });
+    } catch (e) {
+      print("API ERROR: $e");
+    }
+  }
+
+  //Markers color by status
+  Color getColor(String status) {
+    switch (status) {
+      case "LOW":
+        return Colors.green;
+      case "MEDIUM":
+        return Colors.orange;
+      case "HIGH":
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
 
   //line 1
   final List<Map<String, dynamic>> line1 = [
@@ -188,15 +217,37 @@ class _HomepagesState extends State<Homepages> {
     return selectedLine == "line1" ? line1 : line2;
   }
 
+  Future<List<LatLng>> fetchRealRoute() async {
+    final points = getSelectedLine();
+
+    // 🔥 สร้างพิกัด lng,lat (สำคัญมาก)
+    String coords = points.map((p) => "${p["lng"]},${p["lat"]}").join(";");
+
+    final url =
+        "https://router.project-osrm.org/route/v1/driving/$coords?overview=full&geometries=geojson";
+
+    try {
+      final res = await http.get(Uri.parse(url));
+      final data = jsonDecode(res.body);
+
+      final routeCoords = data["routes"][0]["geometry"]["coordinates"];
+
+      return routeCoords.map<LatLng>((c) {
+        return LatLng(c[1], c[0]); // lat,lng
+      }).toList();
+    } catch (e) {
+      print("❌ ROUTE ERROR: $e");
+      return [];
+    }
+  }
+
   List<LatLng> route = [];
 
-  void updateRoute() {
-    final points = getSelectedLine()
-        .map((e) => LatLng((e["lat"] as double), (e["lng"] as double)))
-        .toList();
+  void updateRoute() async {
+    final newRoute = await fetchRealRoute();
 
     setState(() {
-      route = catmullRomSpline(points);
+      route = newRoute;
     });
   }
 
@@ -209,6 +260,8 @@ class _HomepagesState extends State<Homepages> {
     super.initState();
     updateRoute();
     startBusAnimation();
+
+    fetchStations(); //
   }
 
   void startBusAnimation() {
@@ -356,7 +409,8 @@ class _HomepagesState extends State<Homepages> {
                   Polyline(
                     points: route,
                     color: selectedLine == "line1"
-                        ? Colors.grey // line1
+                        ? Colors
+                              .grey // line1
                         : Colors.lightGreen, // line 2
                     strokeWidth: 4,
                   ),
@@ -366,6 +420,21 @@ class _HomepagesState extends State<Homepages> {
               // Stations Markers
               MarkerLayer(
                 markers: getSelectedLine().map((station) {
+                  // 🔥 หา station จาก DB ด้วย lat/lng (ไม่ใช้ index → ไม่พัง)
+                  var real = stationData.isNotEmpty
+                      ? stationData.firstWhere(
+                          (s) =>
+                              s["lat"] == station["lat"] &&
+                              s["lng"] == station["lng"],
+                          orElse: () => null,
+                        )
+                      : null;
+
+                  int waiting = real != null ? real["waiting"] ?? 0 : 0;
+                  String status = real != null
+                      ? real["status"] ?? "LOW"
+                      : "LOW";
+
                   return Marker(
                     point: LatLng(station["lat"], station["lng"]),
                     width: 60,
@@ -381,7 +450,9 @@ class _HomepagesState extends State<Homepages> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             content: Text(
-                              "${station["name"]}\nจำนวนผู้โดยสาร: 0 คน\nรถจะมาถึงในอีก: 5 นาที",
+                              "${station["name"]}\n"
+                              "จำนวนผู้โดยสาร: $waiting คน\n"
+                              "รถจะมาถึงในอีก: 5 นาที",
                               style: GoogleFonts.kanit(
                                 fontSize: 18,
                                 color: Colors.black,
@@ -390,9 +461,11 @@ class _HomepagesState extends State<Homepages> {
                           ),
                         );
                       },
-                      child: const Icon(
+
+                      // 🔥 เปลี่ยนตรงนี้
+                      child: Icon(
                         Icons.location_on,
-                        color: Colors.red,
+                        color: getColor(status), // 🔥 ใช้สีจาก DB
                         size: 35,
                       ),
                     ),
@@ -577,8 +650,7 @@ class _HomepagesState extends State<Homepages> {
           ),
 
           //bottom bar => custom_bottom_bar.dart
-         CustomBottomBar(currentIndex: 0),
-
+          CustomBottomBar(currentIndex: 0),
         ],
       ),
     );

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = "http://192.168.1.172:5001"; //ip คอมเรา
+  static const String baseUrl = "http://192.168.110.142:5001"; //ip คอมเรา
 
   // ===== COMMON FUNCTION =====
   static dynamic _handleResponse(http.Response res) {
@@ -17,43 +17,44 @@ class ApiService {
     }
   }
 
-// Register
-static Future<String?> register(
-  String username,
-  String password,
-  String email,
-) async {
-  print("REGISTER INPUT:");
-  print("username: $username");
-  print("password: $password");
-  print("email: $email");
+  // Register
+  static Future<String?> register(
+    String username,
+    String password,
+    String email,
+  ) async {
+    print("REGISTER INPUT:");
+    print("username: $username");
+    print("password: $password");
+    print("email: $email");
 
-  try {
-    final res = await http.post(
-      Uri.parse("$baseUrl/auth/register"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "username": username,
-        "password": password,
-        "email": email,
-      }),
-    );
+    try {
+      final res = await http.post(
+        Uri.parse("$baseUrl/auth/register"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "username": username,
+          "password": password,
+          "email": email,
+        }),
+      );
 
-    print("STATUS: ${res.statusCode}");
-    print("BODY: ${res.body}");
+      print("STATUS: ${res.statusCode}");
+      print("BODY: ${res.body}");
 
-    final data = _handleResponse(res);
+      final data = _handleResponse(res);
 
-    if (res.statusCode == 200) {
-      return null;
-    } else {
-      return data["error"] ?? "Register failed";
+      if (res.statusCode == 200) {
+        return null;
+      } else {
+        return data["error"] ?? "Register failed";
+      }
+    } catch (e) {
+      return "Network error";
     }
-  } catch (e) {
-    return "Network error";
   }
-}
-  // 🔥 LOGIN
+
+  //LOGIN
   static Future<String?> login(String username, String password) async {
     try {
       final res = await http.post(
@@ -76,7 +77,7 @@ static Future<String?> register(
     }
   }
 
-  // 🔥 UPDATE PROFILE
+  //UPDATE PROFILE
   static Future<String?> updateProfile(
     String username,
     String email,
@@ -113,7 +114,7 @@ static Future<String?> register(
     }
   }
 
-  // 🔒 GET USER
+  // GET USER
   static Future<Map<String, dynamic>> getLatest() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString("token");
@@ -129,6 +130,24 @@ static Future<String?> register(
       return data;
     } else {
       throw Exception(data["error"] ?? "Failed to load user");
+    }
+  }
+
+  //Station
+  //Station
+  static Future<List<dynamic>> getStations(String line) async {
+    try {
+      final res = await http.get(Uri.parse("$baseUrl/station/$line"));
+
+      final data = _handleResponse(res);
+
+      if (res.statusCode == 200) {
+        return data;
+      } else {
+        throw Exception("Failed to load stations");
+      }
+    } catch (e) {
+      throw Exception("Network error");
     }
   }
 }
