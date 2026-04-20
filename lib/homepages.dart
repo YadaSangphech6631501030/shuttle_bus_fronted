@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -5,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shuttle_bus_fronted/bus_station.dart';
 import 'package:shuttle_bus_fronted/custom_bottom_bar.dart';
+import 'package:shuttle_bus_fronted/services/api_service.dart';
 
 class Homepages extends StatefulWidget {
   const Homepages({super.key});
@@ -21,84 +24,129 @@ class _HomepagesState extends State<Homepages> {
   final MapController mapController = MapController();
   double currentZoom = 16;
 
+  Timer? stationTimer;
+
+  List<dynamic> stationData = [];
+  Future<void> fetchStations() async {
+    try {
+      final data = await ApiService.getStations(selectedLine);
+      setState(() {
+        stationData = data;
+      });
+    } catch (e) {
+      print("API ERROR: $e");
+    }
+  }
+
+  //Markers color by status
+  Color getColor(String status) {
+    switch (status) {
+      case "LOW":
+        return Colors.green;
+      case "MEDIUM":
+        return Colors.orange;
+      case "HIGH":
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
   //line 1
   final List<Map<String, dynamic>> line1 = [
     {
+      "id": "station1",
       "name": "Station 01 (จุดหอพักลำดวน 2)",
-      "lat": 20.05896500699539,
-      "lng": 99.8988796884786,
+      "lat":  20.058823,
+      "lng": 99.898419,
     },
     {
+      "id": "station2",
       "name": "Station 02(จุดพักลำดวน 7 ขาเข้า)",
-      "lat": 20.057081156842653,
-      "lng": 99.89702395554524,
+      "lat":   20.057030,
+      "lng":    99.896919,
+      
     },
     {
+      "id": "station3",
       "name": "Station 03 (จุด หอพักจีน ขาเข้า)",
       "lat": 20.050870176213458,
       "lng": 99.8913375758622,
     },
     {
+      "id": "station4",
       "name": "Station 04 (จุด ศูนย์จีน ขาเข้า)",
       "lat": 20.048895164537097,
       "lng": 99.89132709650245,
     },
     {
+      "id": "station5",
       "name": "Station 05 (จุด ลานจอดหอพัก F)",
       "lat": 20.048215214947664,
       "lng": 99.89322591378016,
     },
     {
+      "id": "station6",
       "name": "Station 06 (จุด อาคารโรงอาหาร D1)",
-      "lat": 20.047237196545165,
-      "lng": 99.89329478216467,
+      "lat": 20.04736,
+      "lng": 99.893283,
     },
     {
+      "id": "station7",
       "name": "Station 07 (จุด สระน้ำวงรี ลานดาว)",
       "lat": 20.045606104291842,
       "lng": 99.89153621441135,
     },
     {
+      "id": "station8",
       "name": "Station 08 (จุด อาคารโรงอาหาร E2 ขาเข้า)",
       "lat": 20.04399637202456,
       "lng": 99.893402801156,
     },
     {
+      "id": "station9",
       "name": "Station 09 (จุด อาคารเรียนรวม C3 C2 และ หอประชุมสมเด็จย่า C4)",
       "lat": 20.043895277649657,
       "lng": 99.89521575716422,
     },
     {
+      "id": "station10",
       "name": "Station 10 (จุด อาคารเรียนรวม C5 )",
       "lat": 20.043346224233225,
       "lng": 99.89513551300819,
     },
     {
+      "id": "station11",
       "name": "Station 11 (จุด อาคาร m - square)",
       "lat": 20.045780781087203,
       "lng": 99.89135359185909,
     },
     {
+      "id": "station12",
       "name": "Station 12 (จุด ศูนย์จีน ขาออก)",
-      "lat": 20.048986374924546,
-      "lng": 99.89118215098704,
+       "lat":  20.048830,
+      "lng": 99.891330,
     },
     {
+      "id": "station13",
       "name": "Station 13 (จุด หอพักจีน ขาออก)",
-      "lat": 20.05134933875068,
-      "lng": 99.8914018941547,
+      "lat": 20.050779,
+      "lng": 99.891138,
     },
     {
+      "id": "station14",
       "name": "Station 14 (จุด สนามกีฬากลาง)",
       "lat": 20.054763275437402,
       "lng": 99.89454537873918,
     },
     {
+      "id": "station15",
       "name": "Station 15 (จุด หอพักลำดวน 7 ขาออก)",
-      "lat": 20.056724686542545,
-      "lng": 99.89712571588397,
+       "lat":    20.056749,
+      "lng":   99.897073,
     },
     {
+      "id": "station16",
       "name": "Station 16 (จุด ครัวลำดวน)",
       "lat": 20.058276924103307,
       "lng": 99.89811278167763,
@@ -108,76 +156,91 @@ class _HomepagesState extends State<Homepages> {
   //line 2
   final List<Map<String, dynamic>> line2 = [
     {
+      "id": "station1",
       "name": "Station 01 (จุดหอพักลำดวน 2)",
-      "lat": 20.05896500699539,
-      "lng": 99.8988796884786,
+      "lat":  20.058823,
+      "lng": 99.898419,
     },
     {
+      "id": "station2",
       "name": "Station 02(จุดพักลำดวน 7 ขาเข้า)",
       "lat": 20.057081156842653,
       "lng": 99.89702395554524,
     },
     {
+      "id": "station3",
       "name": "Station 03 (จุด หอพักจีน ขาเข้า)",
       "lat": 20.050870176213458,
       "lng": 99.8913375758622,
     },
     {
+      "id": "station4",
       "name": "Station 04 (จุด ศูนย์จีน ขาเข้า)",
       "lat": 20.048895164537097,
       "lng": 99.89132709650245,
     },
     {
+      "id": "station5",
       "name": "Station 05 (จุด ลานจอดหอพัก F)",
       "lat": 20.048215214947664,
       "lng": 99.89322591378016,
     },
     {
+      "id": "station6",
       "name": "Station 06 (จุด อาคารโรงอาหาร D1)",
-      "lat": 20.047237196545165,
-      "lng": 99.89329478216467,
+      "lat": 20.04736,
+      "lng": 99.893283,
     },
     {
+      "id": "station7",
       "name": "Station 07 (จุด สระน้ำวงรี ลานดาว)",
       "lat": 20.045606104291842,
       "lng": 99.89153621441135,
     },
     {
+      "id": "station8",
       "name": "Station 08 (จุด อาคารโรงอาหาร E2 ขาเข้า)",
       "lat": 20.04399637202456,
       "lng": 99.893402801156,
     },
     {
+      "id": "station17",
       "name": "Station 09 (จุด โรงพยาบาลแม่ฟ้าหลวง)",
       "lat": 20.041278409327774,
       "lng": 99.89430864493072,
     },
     {
+      "id": "station10",
       "name": "Station 10 (จุด อาคาร m - square)",
       "lat": 20.045780781087203,
       "lng": 99.89135359185909,
     },
     {
+      "id": "station11",
       "name": "Station 11 (จุด ศูนย์จีน ขาออก)",
-      "lat": 20.048986374924546,
-      "lng": 99.89118215098704,
+      "lat":  20.048830,
+      "lng": 99.891330,
     },
     {
+      "id": "station12",
       "name": "Station 12 (จุด หอพักจีน ขาออก)",
-      "lat": 20.05134933875068,
-      "lng": 99.8914018941547,
+       "lat": 20.050779,
+      "lng": 99.891138,
     },
     {
+      "id": "station13",
       "name": "Station 13 (จุด สนามกีฬากลาง)",
       "lat": 20.054763275437402,
       "lng": 99.89454537873918,
     },
     {
+      "id": "station14",
       "name": "Station 14 (จุด หอพักลำดวน 7 ขาออก)",
-      "lat": 20.056724686542545,
-      "lng": 99.89712571588397,
+      "lat":   20.056749,
+      "lng":   99.897073,
     },
     {
+      "id": "station15",
       "name": "Station 15 (จุด ครัวลำดวน)",
       "lat": 20.058276924103307,
       "lng": 99.89811278167763,
@@ -188,15 +251,38 @@ class _HomepagesState extends State<Homepages> {
     return selectedLine == "line1" ? line1 : line2;
   }
 
+  Future<List<LatLng>> fetchRealRoute() async {
+    final points = getSelectedLine();
+
+    // 🔥 สร้างพิกัด lng,lat (สำคัญมาก)
+    String coords = points.map((p) => "${p["lng"]},${p["lat"]}").join(";");
+
+    final url =
+        "https://router.project-osrm.org/route/v1/driving/$coords?overview=full&geometries=geojson";
+
+    try {
+      final res = await http.get(Uri.parse(url));
+      final data = jsonDecode(res.body);
+
+      final routeCoords = data["routes"][0]["geometry"]["coordinates"];
+
+      return routeCoords.map<LatLng>((c) {
+        return LatLng(c[1], c[0]); // lat,lng
+      }).toList();
+      
+    } catch (e) {
+      print("❌ ROUTE ERROR: $e");
+      return [];
+    }
+  }
+
   List<LatLng> route = [];
 
-  void updateRoute() {
-    final points = getSelectedLine()
-        .map((e) => LatLng((e["lat"] as double), (e["lng"] as double)))
-        .toList();
+  void updateRoute() async {
+    final newRoute = await fetchRealRoute();
 
     setState(() {
-      route = catmullRomSpline(points);
+      route = newRoute;
     });
   }
 
@@ -204,12 +290,23 @@ class _HomepagesState extends State<Homepages> {
   List<int> busIndexes = [0, 10, 20, 30];
   bool isMoving = true;
 
-  @override
-  void initState() {
-    super.initState();
-    updateRoute();
-    startBusAnimation();
-  }
+@override
+void dispose() {
+  stationTimer?.cancel();
+  super.dispose();
+}
+
+void initState() {
+  super.initState();
+  updateRoute();
+  startBusAnimation();
+
+  fetchStations();
+
+  stationTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    fetchStations();
+  });
+}
 
   void startBusAnimation() {
     Timer.periodic(const Duration(milliseconds: 500), (timer) {
@@ -356,7 +453,8 @@ class _HomepagesState extends State<Homepages> {
                   Polyline(
                     points: route,
                     color: selectedLine == "line1"
-                        ? Colors.grey // line1
+                        ? Colors
+                              .grey // line1
                         : Colors.lightGreen, // line 2
                     strokeWidth: 4,
                   ),
@@ -366,13 +464,30 @@ class _HomepagesState extends State<Homepages> {
               // Stations Markers
               MarkerLayer(
                 markers: getSelectedLine().map((station) {
+                  // 🔥 หา station จาก DB ด้วย lat/lng (ไม่ใช้ index → ไม่พัง)
+                 Map<String, dynamic>? stationMatch;
+
+                try {
+                    stationMatch = stationData.firstWhere(
+                       (s) => s["id"] == station["id"],
+                      );
+                } catch (e) {
+                    stationMatch = null;
+                          }
+
+                int waiting = stationMatch?["waiting"] ?? 0;  
+                String status = stationMatch?["status"] ?? "LOW";
+                int eta = stationMatch?["eta"] ?? 0;
+
                   return Marker(
                     point: LatLng(station["lat"], station["lng"]),
                     width: 60,
                     height: 60,
-                    alignment: Alignment.bottomCenter,
+                    alignment: Alignment.center,
                     child: GestureDetector(
                       onTap: () {
+                        int eta = stationMatch?["eta"] ?? 0;
+
                         showDialog(
                           context: context,
                           builder: (_) => AlertDialog(
@@ -381,7 +496,9 @@ class _HomepagesState extends State<Homepages> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             content: Text(
-                              "${station["name"]}\nจำนวนผู้โดยสาร: 0 คน\nรถจะมาถึงในอีก: 5 นาที",
+                              "${station["name"]}\n"
+                              "จำนวนผู้โดยสาร: $waiting คน\n"
+                              "รถจะมาถึงในอีก: $eta นาที",
                               style: GoogleFonts.kanit(
                                 fontSize: 18,
                                 color: Colors.black,
@@ -390,9 +507,11 @@ class _HomepagesState extends State<Homepages> {
                           ),
                         );
                       },
-                      child: const Icon(
+
+                      // 🔥 เปลี่ยนตรงนี้
+                      child: Icon(
                         Icons.location_on,
-                        color: Colors.red,
+                        color: getColor(status), // 🔥 ใช้สีจาก DB
                         size: 35,
                       ),
                     ),
@@ -501,6 +620,7 @@ class _HomepagesState extends State<Homepages> {
                       selectedLine = "line1";
                     });
                     updateRoute();
+                    fetchStations();
                   },
                   child: const Text("Line 1"),
                 ),
@@ -522,6 +642,7 @@ class _HomepagesState extends State<Homepages> {
                       selectedLine = "line2";
                     });
                     updateRoute();
+                    fetchStations();
                   },
                   child: const Text("Line 2"),
                 ),
@@ -577,8 +698,7 @@ class _HomepagesState extends State<Homepages> {
           ),
 
           //bottom bar => custom_bottom_bar.dart
-         CustomBottomBar(currentIndex: 0),
-
+          CustomBottomBar(currentIndex: 0),
         ],
       ),
     );
