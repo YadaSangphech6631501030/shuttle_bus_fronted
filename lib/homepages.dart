@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shuttle_bus_fronted/bus_station.dart';
 import 'package:shuttle_bus_fronted/custom_bottom_bar.dart';
 import 'package:shuttle_bus_fronted/services/api_service.dart';
+import 'package:shuttle_bus_fronted/bus_controller.dart';
 
 class Homepages extends StatefulWidget {
   const Homepages({super.key});
@@ -25,8 +27,27 @@ class _HomepagesState extends State<Homepages> {
   double currentZoom = 16;
 
   Timer? stationTimer;
+  Timer? busTimer;
+  Timer? moveTimer;
 
+  List<dynamic> busData = [];
   List<dynamic> stationData = [];
+  Map<String, LatLng> busPositions = {};
+  
+  
+  // statuses for bus
+  Map<String, double> busProgress =
+      {}; // เก็บ index ปัจจุบันใน route ของรถแต่ละคัน
+  Map<String, DateTime?> busWaitUntil =
+      {}; // เวลาที่รถจะเริ่มวิ่งต่อได้ (ใช้หยุดสถานี)
+  Map<String, String?> lastStationId =
+      {}; // จำว่าสถานีล่าสุดที่จอดคือที่ไหน (กันจอดซ้ำ)
+
+  double speed = 0.3; 
+  List<LatLng> route = [];
+
+
+// fetch station
   Future<void> fetchStations() async {
     try {
       final data = await ApiService.getStations(selectedLine);
@@ -57,15 +78,14 @@ class _HomepagesState extends State<Homepages> {
     {
       "id": "station1",
       "name": "Station 01 (จุดหอพักลำดวน 2)",
-      "lat":  20.058823,
+      "lat": 20.058823,
       "lng": 99.898419,
     },
     {
       "id": "station2",
       "name": "Station 02(จุดพักลำดวน 7 ขาเข้า)",
-      "lat":   20.057030,
-      "lng":    99.896919,
-      
+      "lat": 20.057030,
+      "lng": 99.896919,
     },
     {
       "id": "station3",
@@ -124,7 +144,7 @@ class _HomepagesState extends State<Homepages> {
     {
       "id": "station12",
       "name": "Station 12 (จุด ศูนย์จีน ขาออก)",
-       "lat":  20.048830,
+      "lat": 20.048830,
       "lng": 99.891330,
     },
     {
@@ -142,8 +162,8 @@ class _HomepagesState extends State<Homepages> {
     {
       "id": "station15",
       "name": "Station 15 (จุด หอพักลำดวน 7 ขาออก)",
-       "lat":    20.056749,
-      "lng":   99.897073,
+      "lat": 20.056749,
+      "lng": 99.897073,
     },
     {
       "id": "station16",
@@ -158,7 +178,7 @@ class _HomepagesState extends State<Homepages> {
     {
       "id": "station1",
       "name": "Station 01 (จุดหอพักลำดวน 2)",
-      "lat":  20.058823,
+      "lat": 20.058823,
       "lng": 99.898419,
     },
     {
@@ -218,13 +238,13 @@ class _HomepagesState extends State<Homepages> {
     {
       "id": "station11",
       "name": "Station 11 (จุด ศูนย์จีน ขาออก)",
-      "lat":  20.048830,
+      "lat": 20.048830,
       "lng": 99.891330,
     },
     {
       "id": "station12",
       "name": "Station 12 (จุด หอพักจีน ขาออก)",
-       "lat": 20.050779,
+      "lat": 20.050779,
       "lng": 99.891138,
     },
     {
@@ -236,8 +256,8 @@ class _HomepagesState extends State<Homepages> {
     {
       "id": "station14",
       "name": "Station 14 (จุด หอพักลำดวน 7 ขาออก)",
-      "lat":   20.056749,
-      "lng":   99.897073,
+      "lat": 20.056749,
+      "lng": 99.897073,
     },
     {
       "id": "station15",
@@ -254,7 +274,6 @@ class _HomepagesState extends State<Homepages> {
   Future<List<LatLng>> fetchRealRoute() async {
     final points = getSelectedLine();
 
-    // 🔥 สร้างพิกัด lng,lat (สำคัญมาก)
     String coords = points.map((p) => "${p["lng"]},${p["lat"]}").join(";");
 
     final url =
@@ -269,14 +288,11 @@ class _HomepagesState extends State<Homepages> {
       return routeCoords.map<LatLng>((c) {
         return LatLng(c[1], c[0]); // lat,lng
       }).toList();
-      
     } catch (e) {
       print("❌ ROUTE ERROR: $e");
       return [];
     }
   }
-
-  List<LatLng> route = [];
 
   void updateRoute() async {
     final newRoute = await fetchRealRoute();
@@ -284,50 +300,239 @@ class _HomepagesState extends State<Homepages> {
     setState(() {
       route = newRoute;
     });
+    
+   
   }
 
-  //bus animation
-  List<int> busIndexes = [0, 10, 20, 30];
-  bool isMoving = true;
+  @override
+  void dispose() {
+    stationTimer?.cancel();
+    busTimer?.cancel();
+    moveTimer?.cancel();
+    super.dispose();
+  }
 
-@override
-void dispose() {
-  stationTimer?.cancel();
-  super.dispose();
+  @override
+  void initState() {
+    super.initState();
+    updateRoute();
+    fetchStations();
+    fetchBuses();
+
+    BusController.instance.start();
+
+
+    stationTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => fetchStations(),
+    );
+    busTimer = Timer.periodic(const Duration(seconds: 10), (_) => fetchBuses());
+
+    moveTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
+      moveSmooth();
+      updateAllStationETA(); 
+      updateBusETA();
+    });
+  }
+
+  
+
+  //fetch bus
+  Future<void> fetchBuses() async {
+  try {
+    final data = await ApiService.getBuses();
+
+    setState(() {
+      busData = data;
+    });
+
+    BusController.instance.updateBuses(data);
+
+  } catch (e) {
+    print("BUS ERROR: $e");
+  }
 }
 
-void initState() {
-  super.initState();
-  updateRoute();
-  startBusAnimation();
+  // Calculate ETA to station
+  double calculateETA(LatLng stationLatLng) {
+  double minMinutes = double.infinity;
 
-  fetchStations();
+  for (var bus in BusController.instance.busData) {
+    final id = bus["busNumber"].toString();
 
-  stationTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-    fetchStations();
+    final pos = BusController.instance.busPositions[id];
+    if (pos == null) continue;
+
+    double distMeters = const Distance().as(
+      LengthUnit.Meter,
+      pos,
+      stationLatLng,
+    );
+
+    double speedMeterPerSec = 10;
+
+    double timeSec = distMeters / speedMeterPerSec;
+    double timeMin = timeSec / 60;
+
+    if (timeMin < minMinutes) {
+      minMinutes = timeMin;
+    }
+  }
+
+  if (minMinutes == double.infinity) return 0;
+  return minMinutes;
+}
+
+  //updates ETA station
+  void updateAllStationETA() {
+  for (var station in getSelectedLine()) {
+    final stationId = station["id"];
+
+    double minMinutes = double.infinity;
+
+    for (var bus in BusController.instance.busData) {
+      final id = bus["busNumber"].toString();
+      final pos = BusController.instance.busPositions[id];
+
+      if (pos == null) continue;
+
+      double dist = const Distance().as(
+        LengthUnit.Meter,
+        pos,
+        LatLng(station["lat"], station["lng"]),
+      );
+
+      double timeMin = (dist / 5) / 60;
+
+      if (timeMin < minMinutes) {
+        minMinutes = timeMin;
+      }
+    }
+
+    BusController.instance.stationETA[stationId] =
+        minMinutes.isFinite ? minMinutes.toInt() : 0;
+  }
+}
+
+  // Bus movement logic
+  void moveSmooth() {
+  final buses = BusController.instance.busData;
+
+  if (route.isEmpty || buses.isEmpty) return;
+
+  setState(() {
+    for (int i = 0; i < buses.length; i++) {
+      final id = buses[i]["busNumber"].toString();
+      final now = DateTime.now();
+
+      // ✅ WAIT
+      if (BusController.instance.busWaitUntil[id] != null &&
+          now.isBefore(BusController.instance.busWaitUntil[id]!)) {
+        continue;
+        
+      }
+
+      double currentProgress =
+          BusController.instance.busProgress[id] ?? (i * 20.0);
+
+      double nextProgress = currentProgress + speed;
+
+      // ✅ COLLISION
+      bool shouldStop = false;
+      for (var otherBus in buses) {
+        final otherId = otherBus["busNumber"].toString();
+        if (id == otherId) continue;
+
+        double otherProgress =
+            BusController.instance.busProgress[otherId] ?? 0;
+
+        double gap = otherProgress - currentProgress;
+        if (gap > 0 && gap < 15) {
+          shouldStop = true;
+          break;
+        }
+      }
+      if (shouldStop) continue;
+
+      // ✅ STATION STOP
+      int currentIndex = currentProgress.floor();
+
+      if (currentIndex < route.length) {
+        LatLng currentLatLng = route[currentIndex];
+
+        for (var station in getSelectedLine()) {
+          LatLng stationLatLng =
+              LatLng(station["lat"], station["lng"]);
+
+          double distMeters = const Distance().as(
+            LengthUnit.Meter,
+            currentLatLng,
+            stationLatLng,
+          );
+
+          if (distMeters < 15 &&
+              BusController.instance.lastStationId[id] != station["id"]) {
+            BusController.instance.busWaitUntil[id] =
+                now.add(const Duration(seconds: 2));
+
+            BusController.instance.lastStationId[id] = station["id"];
+            break;
+          } else if (distMeters > 50 &&
+              BusController.instance.lastStationId[id] == station["id"]) {
+            BusController.instance.lastStationId[id] = null;
+          }
+        }
+      }
+
+      // ✅ LOOP ROUTE
+      if (nextProgress >= route.length - 1) {
+        nextProgress = 0;
+      }
+
+      BusController.instance.busProgress[id] = nextProgress;
+
+      int idx = nextProgress.floor();
+      double t = nextProgress - idx;
+
+      LatLng p1 = route[idx];
+      LatLng p2 = route[idx + 1];
+
+      BusController.instance.busPositions[id] = LatLng(
+        p1.latitude + (p2.latitude - p1.latitude) * t,
+        p1.longitude + (p2.longitude - p1.longitude) * t,
+      );
+    }
   });
 }
 
-  void startBusAnimation() {
-    Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      if (!mounted) return;
+void updateBusETA() {
+  for (var bus in BusController.instance.busData) {
+    final id = bus["busNumber"].toString();
+    final pos = BusController.instance.busPositions[id];
 
-      if (isMoving && route.isNotEmpty) {
-        setState(() {
-          for (int i = 0; i < busIndexes.length; i++) {
-            busIndexes[i] = (busIndexes[i] + 1) % route.length;
-          }
-        });
+    if (pos == null) continue;
+
+    double minMinutes = double.infinity;
+
+    for (var station in getSelectedLine()) {
+      double dist = const Distance().as(
+        LengthUnit.Meter,
+        pos,
+        LatLng(station["lat"], station["lng"]),
+      );
+
+      double timeMin = (dist / 5) / 60;
+
+      if (timeMin < minMinutes) {
+        minMinutes = timeMin;
       }
-    });
+    }
 
-    Timer.periodic(const Duration(seconds: 2), (timer) {
-      if (!mounted) return;
-      setState(() {
-        isMoving = !isMoving;
-      });
-    });
+    BusController.instance.busETA[id] =
+        minMinutes.isFinite ? minMinutes.ceil() : 0;
   }
+}
+
 
   List<LatLng> catmullRomSpline(List<LatLng> points, {int segments = 10}) {
     List<LatLng> result = [];
@@ -464,20 +669,22 @@ void initState() {
               // Stations Markers
               MarkerLayer(
                 markers: getSelectedLine().map((station) {
-                  // 🔥 หา station จาก DB ด้วย lat/lng (ไม่ใช้ index → ไม่พัง)
-                 Map<String, dynamic>? stationMatch;
+                  Map<String, dynamic>? stationMatch;
 
-                try {
+                  try {
                     stationMatch = stationData.firstWhere(
-                       (s) => s["id"] == station["id"],
-                      );
-                } catch (e) {
+                      (s) => s["id"] == station["id"],
+                    );
+                  } catch (e) {
                     stationMatch = null;
-                          }
+                  }
 
-                int waiting = stationMatch?["waiting"] ?? 0;  
-                String status = stationMatch?["status"] ?? "LOW";
-                int eta = stationMatch?["eta"] ?? 0;
+                  int waiting = stationMatch?["waiting"] ?? 0;
+                  String status = stationMatch?["status"] ?? "LOW";
+
+                  double eta = calculateETA(
+                  LatLng(station["lat"], station["lng"]),
+                    );
 
                   return Marker(
                     point: LatLng(station["lat"], station["lng"]),
@@ -486,7 +693,11 @@ void initState() {
                     alignment: Alignment.center,
                     child: GestureDetector(
                       onTap: () {
-                        int eta = stationMatch?["eta"] ?? 0;
+                          double eta = calculateETA(
+                            LatLng(station["lat"], station["lng"]),
+                          );
+
+                           int displayETA = eta.ceil();
 
                         showDialog(
                           context: context,
@@ -498,7 +709,7 @@ void initState() {
                             content: Text(
                               "${station["name"]}\n"
                               "จำนวนผู้โดยสาร: $waiting คน\n"
-                              "รถจะมาถึงในอีก: $eta นาที",
+                              "รถจะมาถึงในอีก:  $displayETA นาที",
                               style: GoogleFonts.kanit(
                                 fontSize: 18,
                                 color: Colors.black,
@@ -508,7 +719,6 @@ void initState() {
                         );
                       },
 
-                      // 🔥 เปลี่ยนตรงนี้
                       child: Icon(
                         Icons.location_on,
                         color: getColor(status), // 🔥 ใช้สีจาก DB
@@ -521,15 +731,46 @@ void initState() {
 
               // BUS
               MarkerLayer(
-                markers: busIndexes.map((i) {
-                  if (route.isEmpty)
+                markers: BusController.instance.busData.map((bus) {
+                  final id = bus["busNumber"].toString();
+                  final pos = BusController.instance.busPositions[id];
+
+                  if (pos == null) {
                     return const Marker(point: LatLng(0, 0), child: SizedBox());
+                  }
 
                   return Marker(
-                    point: route[i % route.length],
+                    point: pos,
                     width: 50,
                     height: 50,
-                    child: Image.asset('assets/bus.png'),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Image.asset('assets/bus.png', width: 45, height: 45),
+
+                        Positioned(
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              id,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 }).toList(),
               ),

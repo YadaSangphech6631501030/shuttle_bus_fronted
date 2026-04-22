@@ -134,7 +134,6 @@ class ApiService {
   }
 
   //Station
-  //Station
   static Future<List<dynamic>> getStations(String line) async {
     try {
       final res = await http.get(Uri.parse("$baseUrl/station/$line"));
@@ -150,4 +149,23 @@ class ApiService {
       throw Exception("Network error");
     }
   }
+  
+  //bus
+  static Future<List<dynamic>> getBuses() async {
+  try {
+    final res = await http.get(
+      Uri.parse("$baseUrl/api/buses"),
+    );
+
+    final data = _handleResponse(res);
+
+    if (res.statusCode == 200) {
+      return data;
+    } else {
+      throw Exception("Failed to load buses");
+    }
+  } catch (e) {
+    throw Exception("Network error");
+  }
+}
 }
